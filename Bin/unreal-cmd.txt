@@ -1,0 +1,61 @@
+// Engine\Source\Runtime\Core\Private\Stats\StatsCommand.cpp
+stat None
+pause
+
+stat FPS|stat Unit
+stat Quick|stat UObjects
+stat Game|stat Engine
+stat slow -ms=1 -maxdepth=6
+
+stat SceneRendering|stat ShadowRendering
+stat SceneUpdate|stat InitViews
+stat RenderThreadCommands|stat RHICMDLIST
+ProfileGPU
+
+// Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
+r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
+r.ShadowQuality 0|r.ShadowQuality 1
+r.Mobile.SceneColorFormat 1|r.Mobile.SceneColorFormat 2
+r.ScreenPercentage 50|r.ScreenPercentage 100|r.ScreenPercentage 150
+r.AllowOcclusionQueries 0|r.AllowOcclusionQueries 1
+r.VisualizeOccludedPrimitives 0|r.VisualizeOccludedPrimitives 1
+show InstancedFoliage|show InstancedStaticMeshes
+show SkeletalMeshes|show StaticMeshes|show Translucency
+show Landscape
+show Particles
+show PostProcessing|show Tonemapper
+show Bloom|show Vignette
+show Bounds|show Bones|showdebug|showdebug vehicle
+//show CameraFrustums
+show Collision|show CollisionPawn|show CollisionVisibility
+show Fog
+show Decals
+//show Materials
+show OcclusionMeshes
+//show PrecomputedVisibility
+show SkyLighting
+show HISMCClusterTree
+
+// Engine\Source\Runtime\Core\Public\Stats\Stats2.h
+stat Memory|stat MemoryPlatform
+stat RHI|stat TextureGroup|stat RenderTargetPool|stat Shaders
+stat MapBuildData|stat SceneMemory|stat LoadTime
+stat MemoryAllocator
+stat MemoryStaticMesh
+
+stat Anim
+stat Slate
+stat TickGroups
+stat TaskGraphTasks
+stat PlayerController
+stat Threading
+stat Particles
+stat PhysXTasks|stat PhysXVehicleManager
+
+stat StartFile|stat StopFile
+//stat MemReport
+stat Streaming|stat StreamingDetails|stat StreamingOverview
+stat UnitGraph
+stat Navigation
+stat NamedEvents
+stat Levels

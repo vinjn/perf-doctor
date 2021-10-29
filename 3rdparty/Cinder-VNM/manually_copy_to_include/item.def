@@ -1,0 +1,6 @@
+ITEM_DEF(int, APP_WIDTH, 882)
+ITEM_DEF(int, APP_HEIGHT, 725)
+ITEM_DEF(string, NAME, "vinjn")
+ITEM_DEF(float, velocity, 3.0f)
+
+ITEM_DEF_MINMAX(float, delay, 3.0f, 0.0f, 10.0f)

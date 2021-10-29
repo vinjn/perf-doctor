@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cinder>
+<block
+	name="vnm"
+	id="org.jing.vnm"
+	author="Vinjn Zhang"
+	license="MIT"
+	summary="Keep it simple and happy"
+	core="false"
+	>
+	<sourcePattern>src/*.*</sourcePattern>
+	<headerPattern>include/*.*</headerPattern>
+	<includePath>include</includePath>
+	<includePath>ui</includePath>
+	<includePath>ui/implot</includePath>
+	<includePath>../</includePath>
+</block>
+<template>templates/Melo Scene/template.xml</template>
+<template>templates/Minimalist VNM/template.xml</template>
+<template>templates/DepthSensor VNM/template.xml</template>
+<template>templates/NonGame/template.xml</template>
+</cinder>

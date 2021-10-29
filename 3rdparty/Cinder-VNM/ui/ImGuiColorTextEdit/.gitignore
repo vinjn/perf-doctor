@@ -30,10 +30,7 @@
 *.exe
 *.out
 *.app
-
-*.vs
-x64/
-*.log
-Bin/
-*.user
-/vc2019/*.aps
+TextEditor.cpp.bak
+*.bak
+Save/TextEditor.h
+Save/TextEditor.cpp

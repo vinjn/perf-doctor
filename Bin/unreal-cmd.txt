@@ -8,8 +8,8 @@ stat Game|stat Engine
 stat Anim|stat Slate|stat Particles
 stat slow -ms=1 -maxdepth=6
 
-stat SceneRendering|stat ShadowRendering
-stat SceneUpdate|stat InitViews
+stat SceneRendering|stat InitViews
+stat SceneUpdate|stat ShadowRendering
 stat RenderThreadCommands|stat RHICMDLIST
 ProfileGPU
 

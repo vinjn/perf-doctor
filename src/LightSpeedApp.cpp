@@ -1894,6 +1894,15 @@ struct PerfDoctorApp : public App
                     {
                         char str[256];
 
+                        ImGui::InputText("APP_FOLDER", &APP_FOLDER);
+                        ImGui::SameLine();
+                        if (ImGui::Button("Get log"))
+                        {
+                            sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Logs/%s.log", APP_FOLDER.c_str(), APP_FOLDER.c_str(), APP_FOLDER.c_str());
+                            executeAdb(str);
+                            launchWebBrowser(Url(APP_FOLDER + ".log", true));
+                        }
+
                         ImGui::InputText(" ", &UE_CMD);
                         ImGui::SameLine();
                         if (ImGui::Button("Apply"))

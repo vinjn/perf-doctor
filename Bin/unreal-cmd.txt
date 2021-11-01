@@ -5,6 +5,7 @@ pause
 stat FPS|stat Unit
 stat Quick|stat UObjects
 stat Game|stat Engine
+stat Anim|stat Slate|stat Particles
 stat slow -ms=1 -maxdepth=6
 
 stat SceneRendering|stat ShadowRendering
@@ -43,13 +44,10 @@ stat MapBuildData|stat SceneMemory|stat LoadTime
 stat MemoryAllocator
 stat MemoryStaticMesh
 
-stat Anim
-stat Slate
 stat TickGroups
 stat TaskGraphTasks
 stat PlayerController
 stat Threading
-stat Particles
 stat PhysXTasks|stat PhysXVehicleManager
 
 stat StartFile|stat StopFile

@@ -9,5 +9,6 @@ robocopy %SRC%/ %OUTPUT% *.bat
 robocopy %SRC%/ %OUTPUT% *.dll
 robocopy %SRC%/ %OUTPUT% *.py
 robocopy %SRC%/ %OUTPUT% *.exe
+robocopy %SRC%/ %OUTPUT% *.txt
 robocopy %SRC%/ %OUTPUT% *.ini
 robocopy %SRC%/adb %OUTPUT%/adb *

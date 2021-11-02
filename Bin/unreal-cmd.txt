@@ -14,7 +14,7 @@ stat RenderThreadCommands|stat RHICMDLIST
 ProfileGPU
 
 // Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
-r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
+show AntiAliasing|r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
 r.Mobile.SceneColorFormat 1|r.Mobile.SceneColorFormat 2
 r.ScreenPercentage 50|r.ScreenPercentage 100|r.ScreenPercentage 150
 r.AllowOcclusionQueries 0|r.AllowOcclusionQueries 1
@@ -25,8 +25,8 @@ show InstancedFoliage|show InstancedStaticMeshes
 show SkeletalMeshes|show StaticMeshes|show Translucency
 show Landscape
 show Particles
-show PostProcessing|show Tonemapper
-show Bloom|show Vignette
+show PostProcessing|show Bloom|show Vignette
+//show Tonemapper
 show Bounds|show Bones|showdebug|showdebug vehicle
 //show CameraFrustums
 show Collision|show CollisionPawn|show CollisionVisibility

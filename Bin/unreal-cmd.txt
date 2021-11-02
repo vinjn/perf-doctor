@@ -15,12 +15,12 @@ ProfileGPU
 
 // Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
 r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
-r.ShadowQuality 0|r.ShadowQuality 1
 r.Mobile.SceneColorFormat 1|r.Mobile.SceneColorFormat 2
 r.ScreenPercentage 50|r.ScreenPercentage 100|r.ScreenPercentage 150
 r.AllowOcclusionQueries 0|r.AllowOcclusionQueries 1
 r.VisualizeOccludedPrimitives 0|r.VisualizeOccludedPrimitives 1
 Slate.EnableGlobalInvalidation 0|Slate.EnableGlobalInvalidation 1
+show DynamicShadows|Decals|Fog
 show InstancedFoliage|show InstancedStaticMeshes
 show SkeletalMeshes|show StaticMeshes|show Translucency
 show Landscape
@@ -30,8 +30,6 @@ show Bloom|show Vignette
 show Bounds|show Bones|showdebug|showdebug vehicle
 //show CameraFrustums
 show Collision|show CollisionPawn|show CollisionVisibility
-show Fog
-show Decals
 //show Materials
 show OcclusionMeshes
 //show PrecomputedVisibility

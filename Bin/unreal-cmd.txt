@@ -15,6 +15,7 @@ ProfileGPU
 
 // Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
 show AntiAliasing|r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
+r.DefaultFeature.AntiAliasing 1|r.DefaultFeature.AntiAliasing 2
 r.Mobile.SceneColorFormat 1|r.Mobile.SceneColorFormat 2
 r.ScreenPercentage 50|r.ScreenPercentage 100|r.ScreenPercentage 150
 r.AllowOcclusionQueries 0|r.AllowOcclusionQueries 1

@@ -282,6 +282,39 @@ struct DataStorage
 
 #include <windows.h>
 #include <Dbghelp.h>
+#include <shlobj_core.h>
+#include <winerror.h>
+
+void goto_folder(fs::path folder, fs::path selectPath)
+{
+    PIDLIST_ABSOLUTE pidl;
+    if (SUCCEEDED(SHParseDisplayName(folder.wstring().c_str(), 0, &pidl, 0, 0)))
+    {
+        // we don't want to actually select anything in the folder, so we pass an empty
+        // PIDL in the array. if you want to select one or more items in the opened
+        // folder you'd need to build the PIDL array appropriately
+
+        if (selectPath.empty())
+        {
+            ITEMIDLIST idNull = { 0 };
+            LPCITEMIDLIST pidlNull[1] = { &idNull };
+            SHOpenFolderAndSelectItems(pidl, 1, pidlNull, 0);
+        }
+        else
+        {
+            ITEMIDLIST* pidlist;
+            SFGAOF aog;
+            SHParseDisplayName(selectPath.wstring().c_str(), NULL, &pidlist, SFGAO_CANCOPY, &aog);//pidlist就是转换以后的shell路径
+
+            LPCITEMIDLIST pidlNull[1] = { pidlist };
+            SHOpenFolderAndSelectItems(pidl, 1, pidlNull, 0);
+            ILFree(pidlist);
+        }
+
+        ILFree(pidl);
+    }
+}
+
 
 void make_minidump(EXCEPTION_POINTERS* e)
 {
@@ -1753,6 +1786,7 @@ struct PerfDoctorApp : public App
         SetUnhandledExceptionFilter(unhandled_handler);
         am::addAssetDirectory(getAppPath());
         mAutoStart = AUTO_START;
+        ::SetCurrentDirectoryA(getAppPath().string().c_str());
 
         std::ifstream file(getAppPath() / "unreal-cmd.txt");
         if (file.is_open())
@@ -1785,6 +1819,14 @@ struct PerfDoctorApp : public App
                 {
                     string output;
                     runCmd(asyncCmd, output);
+                    if (asyncCmd.find("perfetto") != string::npos)
+                    {
+                        auto cmds = split(asyncCmd, " ");
+                        dispatchAsync([this, cmds] {
+                            launchWebBrowser(Url("https://ui.perfetto.dev/#!/", true));
+                            goto_folder(getAppPath(), getAppPath() / (cmds[1] + ".perfetto"));
+                        });
+                    }
                 }
 
                 if (!mIsProfiling || getElapsedSeconds() - lastTimestamp < REFRESH_SECONDS)

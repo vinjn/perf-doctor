@@ -49,7 +49,7 @@ struct TemperatureStatSlot
 
 struct TemperatureStat
 {
-    float cpu, gpu, battery;
+    float cpu = 0, gpu = 0, battery = 0;
 };
 
 struct CpuConfig
@@ -1937,12 +1937,35 @@ struct PerfDoctorApp : public App
                         char str[256];
 
                         ImGui::InputText("APP_FOLDER", &APP_FOLDER);
-                        ImGui::SameLine();
                         if (ImGui::Button("Get log"))
                         {
                             sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Logs/%s.log", APP_FOLDER.c_str(), APP_FOLDER.c_str(), APP_FOLDER.c_str());
                             executeAdb(str);
                             launchWebBrowser(Url(APP_FOLDER + ".log", true));
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Get memreport"))
+                        {
+                            sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports", APP_FOLDER.c_str(), APP_FOLDER.c_str());
+                            auto lines = executeAdb(str);
+                            if (lines.size() > 1)
+                            {
+                                auto folder = lines[lines.size() - 1];;
+                                auto tokens = split(folder, ' ');
+                                folder = tokens[tokens.size() - 1];
+
+                                sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str());
+                                lines = executeAdb(str);
+                                if (lines.size() > 1)
+                                {
+                                    auto lastLine = lines[lines.size() - 1];
+                                    tokens = split(lastLine, ' ');
+                                    auto lastFile = tokens[tokens.size() - 1];
+                                    sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str(), lastFile.c_str());
+                                    executeAdb(str);
+                                    launchWebBrowser(Url(lastFile, true));
+                                }
+                            }
                         }
 
                         ImGui::InputText(" ", &UE_CMD);

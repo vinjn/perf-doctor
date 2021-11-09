@@ -11,7 +11,7 @@ stat slow -ms=1 -maxdepth=6
 stat SceneRendering|stat InitViews
 stat SceneUpdate|stat ShadowRendering
 stat RenderThreadCommands|stat RHICMDLIST
-ProfileGPU
+ProfileGPU|memreport|memreport -full
 
 // Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
 show AntiAliasing|r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4

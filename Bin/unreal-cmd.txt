@@ -1,6 +1,13 @@
 // Engine\Source\Runtime\Core\Private\Stats\StatsCommand.cpp
 stat None
-pause|ToggleDebugCamera
+pause
+RestartLevel
+
+// Engine\Source\Runtime\Engine\Classes\GameFramework\CheatManager.h
+LogLoc|BugIt
+Fly|Walk|Ghost|God
+ToggleDebugCamera
+// DestroyTarget
 
 stat FPS|stat Unit
 stat Quick|stat UObjects

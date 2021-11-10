@@ -1161,7 +1161,7 @@ struct PerfDoctorApp : public App
         mTemperatureStats.clear();
     }
 
-    bool stopProfiler(const string& pacakgeName)
+    bool stopProfiler()
     {
         mIsProfiling = false;
 
@@ -1443,7 +1443,7 @@ struct PerfDoctorApp : public App
             auto lines = executeAdb(cmd);
         }
 
-        stopProfiler(pacakgeName);
+        stopProfiler();
 
         return true;
     }
@@ -1535,7 +1535,11 @@ struct PerfDoctorApp : public App
                 {
                     auto tokens = split(lines[0], ": {}/");
                     auto topAppName = tokens[4];
-                    APP_NAME = topAppName;
+                    if (APP_NAME != topAppName)
+                    {
+                        APP_NAME = topAppName;
+                        stopProfiler();
+                    }
 
                     int idx = 0;
                     for (auto& name : mAppNames)
@@ -1570,7 +1574,7 @@ struct PerfDoctorApp : public App
                 {
                     if (ImGui::Button("Stop Profiling"))
                     {
-                        stopProfiler(mAppNames[mAppId]);
+                        stopProfiler();
                     }
 
                     ImGui::SameLine();

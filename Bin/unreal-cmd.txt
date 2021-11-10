@@ -1,6 +1,6 @@
 // Engine\Source\Runtime\Core\Private\Stats\StatsCommand.cpp
 stat None
-pause
+pause|ToggleDebugCamera
 
 stat FPS|stat Unit
 stat Quick|stat UObjects
@@ -44,15 +44,13 @@ stat MapBuildData|stat SceneMemory|stat LoadTime
 stat MemoryAllocator
 stat MemoryStaticMesh
 
-stat TickGroups
-stat TaskGraphTasks
+stat stat TaskGraphTasks
 stat PlayerController
 stat Threading
 stat PhysXTasks|stat PhysXVehicleManager
 
 stat StartFile|stat StopFile
-//stat MemReport
-stat Streaming|stat StreamingDetails|stat StreamingOverview
+stat Streaming|stat StreamingOverview
 stat UnitGraph
 stat Navigation
 stat NamedEvents

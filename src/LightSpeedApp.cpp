@@ -1781,6 +1781,31 @@ struct PerfDoctorApp : public App
         }
     }
 
+    void getMemReport()
+    {
+        char str[256];
+        sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports", APP_FOLDER.c_str(), APP_FOLDER.c_str());
+        auto lines = executeAdb(str);
+        if (lines.size() > 1)
+        {
+            auto folder = lines[lines.size() - 1];;
+            auto tokens = split(folder, ' ');
+            folder = tokens[tokens.size() - 1];
+
+            sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str());
+            lines = executeAdb(str);
+            if (lines.size() > 1)
+            {
+                auto lastLine = lines[lines.size() - 1];
+                tokens = split(lastLine, ' ');
+                auto lastFile = tokens[tokens.size() - 1];
+                sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str(), lastFile.c_str());
+                executeAdb(str);
+                launchWebBrowser(Url(lastFile, true));
+            }
+        }
+    }
+
     void setup() override
     {
         SetUnhandledExceptionFilter(unhandled_handler);
@@ -1946,26 +1971,7 @@ struct PerfDoctorApp : public App
                         ImGui::SameLine();
                         if (ImGui::Button("Get memreport"))
                         {
-                            sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports", APP_FOLDER.c_str(), APP_FOLDER.c_str());
-                            auto lines = executeAdb(str);
-                            if (lines.size() > 1)
-                            {
-                                auto folder = lines[lines.size() - 1];;
-                                auto tokens = split(folder, ' ');
-                                folder = tokens[tokens.size() - 1];
-
-                                sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str());
-                                lines = executeAdb(str);
-                                if (lines.size() > 1)
-                                {
-                                    auto lastLine = lines[lines.size() - 1];
-                                    tokens = split(lastLine, ' ');
-                                    auto lastFile = tokens[tokens.size() - 1];
-                                    sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str(), lastFile.c_str());
-                                    executeAdb(str);
-                                    launchWebBrowser(Url(lastFile, true));
-                                }
-                            }
+                            getMemReport();
                         }
 
                         ImGui::InputText(" ", &UE_CMD);
@@ -1974,6 +1980,8 @@ struct PerfDoctorApp : public App
                         {
                             sprintf(str, "shell am broadcast -a android.intent.action.RUN -e cmd '%s'", UE_CMD.c_str());
                             executeAdb(str);
+                            if (UE_CMD.find("memreport") != string::npos)
+                                getMemReport();
                         }
                         ImGui::NewLine();
 
@@ -1999,6 +2007,11 @@ struct PerfDoctorApp : public App
                                     UE_CMD = token;
                                     sprintf(str, "shell am broadcast -a android.intent.action.RUN -e cmd '%s'", token.c_str());
                                     executeAdb(str);
+
+                                    if (token.find("memreport") != string::npos)
+                                    {
+                                        getMemReport();
+                                    }
                                 }
                             }
                         }

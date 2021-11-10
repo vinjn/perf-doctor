@@ -4,7 +4,7 @@ pause
 RestartLevel
 
 // Engine\Source\Runtime\Engine\Classes\GameFramework\CheatManager.h
-LogLoc|BugIt
+LogLoc|BugItGo
 Fly|Walk|Ghost|God
 ToggleDebugCamera
 // DestroyTarget

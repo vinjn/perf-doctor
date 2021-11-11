@@ -14,6 +14,7 @@ stat Quick|stat UObjects
 stat Game|stat Engine
 stat Anim|stat Slate|stat Particles
 stat slow -ms=1 -maxdepth=6
+stat dumpframe -ms=0.1
 
 stat SceneRendering|stat InitViews
 stat SceneUpdate|stat ShadowRendering

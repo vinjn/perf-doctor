@@ -127,6 +127,9 @@
     <ClInclude Include="..\3rdparty\Cinder-VNM\ui\implot\implot.h">
       <Filter>Blocks\vnm\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\MixDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">

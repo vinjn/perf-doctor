@@ -6,6 +6,8 @@
 #include "cinder/Log.h"
 #include "cinder/ConcurrentCircularBuffer.h"
 
+#include "MixDevice.h"
+
 #include "AssetManager.h"
 #include "MiniConfigImgui.h"
 #include "implot/implot.h"
@@ -543,6 +545,8 @@ struct PerfDoctorApp : public App
     unique_ptr<thread> mAdbThread;
     bool mIsRunning = true;
     bool mAutoStart = false;
+
+    MixDevice mMixDevice;
 
     FILE* fp_idb;
     vector<string> executeIdb(string cmd, bool async = false, bool oneDeviceOnly = true)
@@ -1816,6 +1820,8 @@ struct PerfDoctorApp : public App
         am::addAssetDirectory(getAppPath());
         mAutoStart = AUTO_START;
         ::SetCurrentDirectoryA(getAppPath().string().c_str());
+
+        mMixDevice.setup();
 
         std::ifstream file(getAppPath() / "unreal-cmd.txt");
         if (file.is_open())

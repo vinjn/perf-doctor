@@ -5,6 +5,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Log.h"
 #include "cinder/ConcurrentCircularBuffer.h"
+#include "cinder/Json.h"
 
 #include "MixDevice.h"
 
@@ -1081,10 +1082,19 @@ struct PerfDoctorApp : public App
         return true;
     }
 
-    bool exportCsv(const string& pacakgeName)
+    void exportGpuTrace()
     {
         auto ts = getTimestampForFilename();
-        string name = pacakgeName + "-" + ts + ".csv";
+        string name = mAppNames[mAppId] + ts + ".gpu.json";
+        JsonTree tree;
+
+        tree.write(getAppPath() / name);
+    }
+
+    bool exportCsv()
+    {
+        auto ts = getTimestampForFilename();
+        string name = mAppNames[mAppId] + "-" + ts + ".csv";
         ofstream ofs(getAppPath() / name);
         if (ofs.is_open())
         {
@@ -1588,9 +1598,24 @@ struct PerfDoctorApp : public App
                         capturePerfetto();
                     }
 
+#ifdef MIX_DEVICE_ENABLED
+                    if (ImGui::Button("Start GpuTrace"))
+                    {
+                        mMixDevice.startGpuTrace();
+                    }
+                    
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Stop GpuTrace"))
+                    {
+                        mMixDevice.stopGpuTrace();
+                        exportGpuTrace();
+                    }
+#endif
+
                     if (ImGui::Button("Export"))
                     {
-                        exportCsv(mAppNames[mAppId]);
+                        exportCsv();
                     }
                 }
                 else

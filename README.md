@@ -14,5 +14,5 @@
 
 # 从代码编译
 - https://github.com/taptap/perf-doctor
-- 依赖 [Cinder 框架](https://github.com/cinder/Cinder)
-- 需要 Visual Studio 2019
+- 依赖 [Cinder 框架](https://github.com/cinder/Cinder)，Cinder/ 与 perf-doctor/ 需位于同一层目录结构
+- 使用 Visual Studio 2019 打开 vc2019/perf-doctor.sln

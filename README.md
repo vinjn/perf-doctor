@@ -9,7 +9,7 @@
 
 [点此下载最新版](https://github.com/taptap/perf-doctor/releases)
 
-![](https://user-images.githubusercontent.com/558657/136703398-2c17a970-d1e0-49ae-91bf-da2d1a258f86.jpg)
+![](https://user-images.githubusercontent.com/558657/143417411-f257fc80-c1fa-4c51-8d9a-983df5cf22be.png)
 
 
 # 从代码编译

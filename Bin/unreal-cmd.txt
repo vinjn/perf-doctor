@@ -56,7 +56,7 @@ stat MapBuildData|stat SceneMemory|stat LoadTime
 stat MemoryAllocator
 stat MemoryStaticMesh
 
-stat stat TaskGraphTasks
+stat TaskGraphTasks
 stat PlayerController
 stat Threading
 stat PhysXTasks|stat PhysXVehicleManager

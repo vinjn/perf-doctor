@@ -3,12 +3,6 @@ stat None
 pause
 RestartLevel
 
-// Engine\Source\Runtime\Engine\Classes\GameFramework\CheatManager.h
-LogLoc|BugItGo
-Fly|Walk|Ghost|God
-ToggleDebugCamera
-// DestroyTarget
-
 stat FPS|stat Unit
 stat Quick|stat UObjects
 stat Game|stat Engine
@@ -22,6 +16,7 @@ stat RenderThreadCommands|stat RHICMDLIST
 ProfileGPU|memreport|memreport -full
 
 // Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
+r.rhithread.enable 0|r.rhithread.enable 1|r.rhithread.enable 2
 show AntiAliasing|r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
 r.DefaultFeature.AntiAliasing 1|r.DefaultFeature.AntiAliasing 2
 r.Mobile.SceneColorFormat 1|r.Mobile.SceneColorFormat 2
@@ -44,6 +39,12 @@ show OcclusionMeshes
 //show PrecomputedVisibility
 show SkyLighting
 show HISMCClusterTree
+
+// Engine\Source\Runtime\Engine\Classes\GameFramework\CheatManager.h
+LogLoc|BugItGo
+Fly|Walk|Ghost|God
+ToggleDebugCamera
+// DestroyTarget
 
 // Engine\Source\Runtime\Core\Public\Stats\Stats2.h
 stat Memory|stat MemoryPlatform

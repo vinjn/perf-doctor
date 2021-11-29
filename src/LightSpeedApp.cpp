@@ -41,6 +41,9 @@ struct MemoryStat
     float pssGfx;
     float pssUnknown;
     float pssNativeHeap;
+
+    float privateClean;
+    float privateDirty;
 };
 
 struct TemperatureStatSlot
@@ -505,6 +508,17 @@ static ImPlotPoint unknown_memoryUsage_getter(void* data, int idx)
     return ImPlotPoint((self[idx].first - firstCpuStatTimestamp) * 1e-3, self[idx].second.pssUnknown);
 }
 
+static ImPlotPoint privateClean_memoryUsage_getter(void* data, int idx)
+{
+    const auto& self = *(vector<pair<uint64_t, MemoryStat>>*)data;
+    return ImPlotPoint((self[idx].first - firstCpuStatTimestamp) * 1e-3, self[idx].second.privateClean);
+}
+
+static ImPlotPoint privateDirty_memoryUsage_getter(void* data, int idx)
+{
+    const auto& self = *(vector<pair<uint64_t, MemoryStat>>*)data;
+    return ImPlotPoint((self[idx].first - firstCpuStatTimestamp) * 1e-3, self[idx].second.privateDirty);
+}
 
 static ImPlotPoint temp_cpu_getter(void* data, int idx)
 {
@@ -532,6 +546,7 @@ struct AdbResults
     vector<string> proc_stat;
     vector<string> proc_pid_stat;
     vector<string> dump_sys_meminfo;
+    vector<string> proc_pid_smaps_rollup;
     vector<string> scaling_cur_freq;
     TemperatureStat temperature;
 };
@@ -1095,14 +1110,43 @@ struct PerfDoctorApp : public App
     {
         auto ts = getTimestampForFilename();
         string name = mAppNames[mAppId] + "-" + ts + ".csv";
-        ofstream ofs(getAppPath() / name);
-        if (ofs.is_open())
+        FILE* fp = fopen((getAppPath() / name).string().c_str(), "w");
+        if (!fp) return false;
+
+        fprintf(fp, "%s,%s\n", 
+            ts.c_str(), mPackageName.c_str());
+        fprintf(fp, "\n");
+
+        fprintf(fp, "DeviceInfo\n");
+        fprintf(fp, "Device Name,OS,OpenGL,SerialNum,CPU Info\n"
+            "%s,%s,%s,%s,%s\n",
+            mDeviceNames[DEVICE_ID].c_str(),
+            mDeviceStat.os_version.c_str(),
+            mDeviceStat.gfx_api_version.c_str(),
+            mSerialNames[DEVICE_ID].c_str(),
+            mDeviceStat.hardware.c_str()
+        );
+        fprintf(fp, "\n");
+
+        fprintf(fp, "Num,FPS,"
+            "Memory[MB],NativePss[MB],Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
+            "CpuTemp,GpuTemp,BatteryTemp\n");
+
+        int memory_count = min<int>(mFpsArray.size(), mMemoryStats.size());
+        int fps_offset = mFpsArray.size() - memory_count;
+        for (int i = 0; i < memory_count; i++)
         {
-            for (auto& pair : mFpsArray)
-            {
-                ofs << pair.second << ',';
-            }
+            fprintf(fp, "%d,%.1f,"
+                "%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,"
+                "%.0f,%.0f,%.0f\n",
+                i, mFpsArray[fps_offset+i].second,
+                mMemoryStats[i].second.pssTotal, mMemoryStats[i].second.pssNativeHeap, mMemoryStats[i].second.pssUnknown,
+                mMemoryStats[i].second.pssGfx, mMemoryStats[i].second.pssEGL, mMemoryStats[i].second.pssGL,
+                mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery
+            );
         }
+        fprintf(fp, "\n");
+        fclose(fp);
 
         return true;
     }
@@ -1357,6 +1401,22 @@ struct PerfDoctorApp : public App
                             break;
                         }
                     }
+
+                    lines = results.proc_pid_smaps_rollup;
+                    for (auto& line : lines)
+                    {
+                        if (line.find("Private_Clean") != string::npos)
+                        {
+                            auto& tokens = split(line, ' ');
+                            stat.privateClean = fromString<int>(tokens[1]) / 1024; // KB -> MB
+                        }
+                        else if (line.find("Private_Dirty") != string::npos)
+                        {
+                            auto& tokens = split(line, ' ');
+                            stat.privateDirty = fromString<int>(tokens[1]) / 1024; // KB -> MB
+                        }
+                    }
+
                     mMemoryStats.push_back({ millisec_since_epoch, stat });
                 }
             }
@@ -1796,6 +1856,8 @@ struct PerfDoctorApp : public App
                     ImPlot::PlotLineG("native_heap", nativeheap_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                     ImPlot::PlotLineG("graphics", gl_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                     ImPlot::PlotLineG("unknown", unknown_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
+                    ImPlot::PlotLineG("private_clean", privateClean_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
+                    ImPlot::PlotLineG("private_dirty", privateDirty_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                 }
                 else if (series.name == "temperature")
                 {
@@ -1910,6 +1972,9 @@ struct PerfDoctorApp : public App
                 {
                     sprintf(cmd, "shell dumpsys meminfo %s", mPackageName.c_str());
                     results.dump_sys_meminfo = executeAdb(cmd);
+
+                    sprintf(cmd, "shell cat /proc/%d/smaps_rollup", pid);
+                    results.proc_pid_smaps_rollup = executeAdb(cmd);
                 }
 
                 if (storage.metric_storage["cpu_freq"].visible)

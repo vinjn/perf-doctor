@@ -1113,39 +1113,55 @@ struct PerfDoctorApp : public App
         FILE* fp = fopen((getAppPath() / name).string().c_str(), "w");
         if (!fp) return false;
 
-        fprintf(fp, "%s,%s\n", 
-            ts.c_str(), mPackageName.c_str());
-        fprintf(fp, "\n");
-
-        fprintf(fp, "DeviceInfo\n");
-        fprintf(fp, "Device Name,OS,OpenGL,SerialNum,CPU Info\n"
-            "%s,%s,%s,%s,%s\n",
-            mDeviceNames[DEVICE_ID].c_str(),
-            mDeviceStat.os_version.c_str(),
-            mDeviceStat.gfx_api_version.c_str(),
-            mSerialNames[DEVICE_ID].c_str(),
-            mDeviceStat.hardware.c_str()
-        );
-        fprintf(fp, "\n");
-
-        fprintf(fp, "Num,FPS,"
-            "Memory[MB],NativePss[MB],Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
-            "CpuTemp,GpuTemp,BatteryTemp\n");
-
-        int memory_count = min<int>(mFpsArray.size(), mMemoryStats.size());
-        int fps_offset = mFpsArray.size() - memory_count;
-        for (int i = 0; i < memory_count; i++)
         {
-            fprintf(fp, "%d,%.1f,"
-                "%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,"
-                "%.0f,%.0f,%.0f\n",
-                i, mFpsArray[fps_offset+i].second,
-                mMemoryStats[i].second.pssTotal, mMemoryStats[i].second.pssNativeHeap, mMemoryStats[i].second.pssUnknown,
-                mMemoryStats[i].second.pssGfx, mMemoryStats[i].second.pssEGL, mMemoryStats[i].second.pssGL,
-                mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery
-            );
+            fprintf(fp, "%s,%s\n", 
+                ts.c_str(), mPackageName.c_str());
+            fprintf(fp, "\n");
         }
-        fprintf(fp, "\n");
+
+        {
+            fprintf(fp, "DeviceInfo\n");
+            fprintf(fp, "Device Name,OS,OpenGL,SerialNum,CPU Info\n"
+                "%s,%s,%s,%s,%s\n",
+                mDeviceNames[DEVICE_ID].c_str(),
+                mDeviceStat.os_version.c_str(),
+                mDeviceStat.gfx_api_version.c_str(),
+                mSerialNames[DEVICE_ID].c_str(),
+                mDeviceStat.hardware.c_str()
+            );
+            fprintf(fp, "\n");
+        }
+
+        {
+            fprintf(fp, "Avg(FPS),Avg(Memory)[MB],Peak(Memory)[MB]\n"
+                "%.1f,%.0f,%.0f\n",
+                mFpsSummary.Avg,
+                mMemorySummary.Avg,
+                mMemorySummary.Max);
+            fprintf(fp, "\n");
+        }
+
+        {
+            fprintf(fp, "Num,FPS,"
+                "Memory[MB],NativePss[MB],Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
+                "CpuTemp,GpuTemp,BatteryTemp\n");
+
+            int memory_count = min<int>(mFpsArray.size(), mMemoryStats.size());
+            int fps_offset = mFpsArray.size() - memory_count;
+            for (int i = 0; i < memory_count; i++)
+            {
+                fprintf(fp, "%d,%.1f,"
+                    "%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,"
+                    "%.0f,%.0f,%.0f\n",
+                    i, mFpsArray[fps_offset+i].second,
+                    mMemoryStats[i].second.pssTotal, mMemoryStats[i].second.pssNativeHeap, mMemoryStats[i].second.pssUnknown,
+                    mMemoryStats[i].second.pssGfx, mMemoryStats[i].second.pssEGL, mMemoryStats[i].second.pssGL,
+                    mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery
+                );
+            }
+            fprintf(fp, "\n");
+        }
+
         fclose(fp);
 
         return true;

@@ -1144,6 +1144,7 @@ struct PerfDoctorApp : public App
         {
             fprintf(fp, "Num,FPS,"
                 "Memory[MB],NativePss[MB],Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
+                "PrivateClean[MB],PrivateDirty[MB],"
                 "CpuTemp,GpuTemp,BatteryTemp\n");
 
             int memory_count = min<int>(mFpsArray.size(), mMemoryStats.size());
@@ -1152,10 +1153,12 @@ struct PerfDoctorApp : public App
             {
                 fprintf(fp, "%d,%.1f,"
                     "%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,"
+                    "%.0f,%.0f,"
                     "%.0f,%.0f,%.0f\n",
                     i, mFpsArray[fps_offset+i].second,
                     mMemoryStats[i].second.pssTotal, mMemoryStats[i].second.pssNativeHeap, mMemoryStats[i].second.pssUnknown,
                     mMemoryStats[i].second.pssGfx, mMemoryStats[i].second.pssEGL, mMemoryStats[i].second.pssGL,
+                    mMemoryStats[i].second.privateClean, mMemoryStats[i].second.privateDirty,
                     mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery
                 );
             }

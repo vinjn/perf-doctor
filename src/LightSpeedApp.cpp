@@ -542,10 +542,11 @@ struct AdbResults
 {
     bool success = true;
     vector<string> SurfaceFlinger_latency;
+    vector<string> dumpsys_gfxinfo;
     vector<string> EPOCHREALTIME;
     vector<string> proc_stat;
     vector<string> proc_pid_stat;
-    vector<string> dump_sys_meminfo;
+    vector<string> dumpsys_meminfo;
     vector<string> proc_pid_smaps_rollup;
     vector<string> scaling_cur_freq;
     TemperatureStat temperature;
@@ -1327,6 +1328,55 @@ struct PerfDoctorApp : public App
                     mFrameTimes.push_back({ ts, ts - mTimestamps[mTimestamps.size() - 2] }); // -2 is prev item
             }
 
+            if (lines.empty())
+            {
+                lines = results.dumpsys_gfxinfo;
+                bool find_app = false;
+                bool find_timestamps = false;
+                for (int i = 0; i < lines.size(); i++)
+                {
+                    auto& line = lines[i];
+                    if (find_timestamps)
+                    {
+                        if (line.find("---PROFILEDATA---") != string::npos)
+                            // reach end of timestamp section
+                            break;
+
+                        auto& tokens = split(line, ',');
+                        auto ts = fromString<uint64_t>(tokens[13]);
+                        ts /= 1e6; // ns -> ms
+                        if (ts <= prevMaxTimestamp) // duplicated timestamps
+                            continue;
+                        if (mLastSnapshotTs == 0)
+                        {
+                            mLastSnapshotTs = ts;
+                            mLastSnapshotIdx = 0;
+                        }
+                        if (ts - mLastSnapshotTs >= 1000)
+                        {
+                            // calculate fps
+                            float frameCount = (mTimestamps.size() - mLastSnapshotIdx) * 1000.0f / (ts - mLastSnapshotTs);
+
+                            mFpsSummary.update(frameCount, mFpsArray.size());
+
+                            mFpsArray.push_back({ ts, frameCount });
+
+                            mLastSnapshotTs = ts;
+                            mLastSnapshotIdx = mTimestamps.size();
+                        }
+
+                        mTimestamps.push_back(ts);
+                        if (mTimestamps.size() > 1)
+                            mFrameTimes.push_back({ ts, ts - mTimestamps[mTimestamps.size() - 2] }); // -2 is prev item
+
+                    }
+                    if (line.find(mPackageName) != string::npos)
+                        find_app = true;
+                    if (find_app && line.find("Flags,IntendedVsync") != string::npos)
+                        find_timestamps = true;
+                }
+            }
+
             if (firstFrameTimestamp == 0 && !mTimestamps.empty())
             {
                 // TODO: a potential bug
@@ -1334,7 +1384,6 @@ struct PerfDoctorApp : public App
                 deltaTimestamp = mTimestamps[mTimestamps.size() - 1] - firstFrameTimestamp;
             }
         }
-
         auto lines = results.EPOCHREALTIME;
         uint64_t millisec_since_epoch = fromString<double>(lines[0]) * 1e3;
 
@@ -1381,7 +1430,7 @@ struct PerfDoctorApp : public App
             {
                 // Memory Usage
                 // https://perfetto.dev/docs/case-studies/memory
-                lines = results.dump_sys_meminfo;
+                lines = results.dumpsys_meminfo;
                 if (lines.size() > 1)
                 {
                     MemoryStat stat;
@@ -1987,13 +2036,18 @@ struct PerfDoctorApp : public App
                     sprintf(cmd, "shell dumpsys SurfaceFlinger --latency \\\"%s\\\"", mSurfaceViewName.c_str());
                     results.SurfaceFlinger_latency = executeAdb(cmd);
                 }
+                else
+                {
+                    sprintf(cmd, "shell dumpsys gfxinfo");
+                    results.dumpsys_gfxinfo = executeAdb(cmd);
+                }
                 results.EPOCHREALTIME = executeAdb("shell echo $EPOCHREALTIME");
                 results.proc_stat = executeAdb("shell cat /proc/stat");
 
                 if (storage.metric_storage["memory_usage"].visible)
                 {
                     sprintf(cmd, "shell dumpsys meminfo %s", mPackageName.c_str());
-                    results.dump_sys_meminfo = executeAdb(cmd);
+                    results.dumpsys_meminfo = executeAdb(cmd);
 
                     sprintf(cmd, "shell cat /proc/%d/smaps_rollup", pid);
                     results.proc_pid_smaps_rollup = executeAdb(cmd);

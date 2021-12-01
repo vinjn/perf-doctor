@@ -1927,8 +1927,8 @@ struct PerfDoctorApp : public App
                     ImPlot::PlotLineG("native_heap", nativeheap_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                     ImPlot::PlotLineG("graphics", gl_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                     ImPlot::PlotLineG("unknown", unknown_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
-                    ImPlot::PlotLineG("private_clean", privateClean_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
-                    ImPlot::PlotLineG("private_dirty", privateDirty_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
+                    //ImPlot::PlotLineG("private_clean", privateClean_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
+                    //ImPlot::PlotLineG("private_dirty", privateDirty_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                 }
                 else if (series.name == "temperature")
                 {

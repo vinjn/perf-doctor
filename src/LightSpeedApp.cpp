@@ -972,13 +972,12 @@ struct PerfDoctorApp : public App
                     mTemparatureStatSlot.cpu = i;
                 if (mTemparatureStatSlot.gpu == -1 && lines[i].find("gpuss-") != string::npos)
                     mTemparatureStatSlot.gpu = i;
-#if 0
+     
                 if (mTemparatureStatSlot.battery == -1 && (
                     lines[i].find("battery") != string::npos
                     || lines[i].find("Battery") != string::npos
                     ))
                     mTemparatureStatSlot.battery = i;
-#endif
             }
         }
 
@@ -1835,6 +1834,7 @@ struct PerfDoctorApp : public App
             {
                 sprintf(text, "cpu_usage [%.0f, %.0f] avg: %.1f", mAppCpuSummary.Min, mAppCpuSummary.Max, mAppCpuSummary.Avg);
                 //title = text;
+                // TODO: fix bug
             }
             if (ImPlot::BeginPlot(title.c_str(), NULL, NULL, ImVec2(-1, PANEL_HEIGHT), ImPlotFlags_NoChild, ImPlotAxisFlags_None))
             {

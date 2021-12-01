@@ -8,6 +8,7 @@ stat Quick|stat UObjects
 stat Game|stat Engine
 stat Anim|stat Slate|stat Particles
 stat slow -ms=1 -maxdepth=6
+dumpticks
 stat dumpframe -ms=0.1
 
 ProfileGPU|memreport|memreport -full

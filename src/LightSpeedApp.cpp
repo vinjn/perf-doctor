@@ -1250,6 +1250,13 @@ struct PerfDoctorApp : public App
         return true;
     }
 
+    struct TripleTimestamp
+    {
+        string started_to_draw;
+        string vsync;
+        string frame_submitted;
+    };
+
     bool updateProfiler(const AdbResults& results)
     {
         {
@@ -1288,12 +1295,49 @@ struct PerfDoctorApp : public App
             // the activity's main window are not updated when the main web content is
             // composited into a SurfaceView.
 
+            vector<TripleTimestamp> timestamps;
+
             auto lines = results.SurfaceFlinger_latency;
             for (int i = 1; i < lines.size(); i++)
             {
                 auto& tokens = split(lines[i], '\t');
                 if (tokens.size() < 3) continue; // it happens sometimes
-                auto ts = fromString<uint64_t>(tokens[2]);
+                timestamps.push_back({ tokens[0], tokens[1], tokens[2] });
+            }
+
+            if (lines.empty())
+            {
+                // https://developer.android.com/training/testing/performance
+                lines = results.dumpsys_gfxinfo;
+                bool find_app = false;
+                bool find_timestamps = false;
+                for (int i = 0; i < lines.size(); i++)
+                {
+                    auto& line = lines[i];
+                    if (find_timestamps)
+                    {
+                        if (line.find("---PROFILEDATA---") != string::npos)
+                            // reach end of timestamp section
+                            break;
+
+                        auto& tokens = split(line, ',');
+                        if (fromString<uint64_t>(tokens[0]) != 0)
+                            // this frame is an outlier, skip it
+                            continue;
+
+                        // 获取INTENDED_VSYNC VSYNC FRAME_COMPLETED时间 利用VSYNC计算fps jank
+                        timestamps.push_back({ tokens[1], tokens[2], tokens[13] });
+                    }
+                    if (line.find(mPackageName) != string::npos)
+                        find_app = true;
+                    if (find_app && line.find("Flags,IntendedVsync") != string::npos)
+                        find_timestamps = true;
+                }
+            }
+
+            for (const auto& triple : timestamps)
+            {
+                auto ts = fromString<uint64_t>(triple.frame_submitted);
                 if (ts == INT64_MAX)
                 {
                     // If a fence associated with a frame is still pending when we query the
@@ -1326,55 +1370,6 @@ struct PerfDoctorApp : public App
                 mTimestamps.push_back(ts);
                 if (mTimestamps.size() > 1)
                     mFrameTimes.push_back({ ts, ts - mTimestamps[mTimestamps.size() - 2] }); // -2 is prev item
-            }
-
-            if (lines.empty())
-            {
-                lines = results.dumpsys_gfxinfo;
-                bool find_app = false;
-                bool find_timestamps = false;
-                for (int i = 0; i < lines.size(); i++)
-                {
-                    auto& line = lines[i];
-                    if (find_timestamps)
-                    {
-                        if (line.find("---PROFILEDATA---") != string::npos)
-                            // reach end of timestamp section
-                            break;
-
-                        auto& tokens = split(line, ',');
-                        auto ts = fromString<uint64_t>(tokens[13]);
-                        ts /= 1e6; // ns -> ms
-                        if (ts <= prevMaxTimestamp) // duplicated timestamps
-                            continue;
-                        if (mLastSnapshotTs == 0)
-                        {
-                            mLastSnapshotTs = ts;
-                            mLastSnapshotIdx = 0;
-                        }
-                        if (ts - mLastSnapshotTs >= 1000)
-                        {
-                            // calculate fps
-                            float frameCount = (mTimestamps.size() - mLastSnapshotIdx) * 1000.0f / (ts - mLastSnapshotTs);
-
-                            mFpsSummary.update(frameCount, mFpsArray.size());
-
-                            mFpsArray.push_back({ ts, frameCount });
-
-                            mLastSnapshotTs = ts;
-                            mLastSnapshotIdx = mTimestamps.size();
-                        }
-
-                        mTimestamps.push_back(ts);
-                        if (mTimestamps.size() > 1)
-                            mFrameTimes.push_back({ ts, ts - mTimestamps[mTimestamps.size() - 2] }); // -2 is prev item
-
-                    }
-                    if (line.find(mPackageName) != string::npos)
-                        find_app = true;
-                    if (find_app && line.find("Flags,IntendedVsync") != string::npos)
-                        find_timestamps = true;
-                }
             }
 
             if (firstFrameTimestamp == 0 && !mTimestamps.empty())
@@ -2022,7 +2017,7 @@ struct PerfDoctorApp : public App
                     }
                 }
 
-                if (!mIsProfiling || getElapsedSeconds() - lastTimestamp < REFRESH_SECONDS)
+                if (mPackageName.empty() || !mIsProfiling || getElapsedSeconds() - lastTimestamp < REFRESH_SECONDS)
                 {
                     sleep(1);
                     continue;
@@ -2038,7 +2033,7 @@ struct PerfDoctorApp : public App
                 }
                 else
                 {
-                    sprintf(cmd, "shell dumpsys gfxinfo");
+                    sprintf(cmd, "shell dumpsys gfxinfo %s framestats", mPackageName.c_str());
                     results.dumpsys_gfxinfo = executeAdb(cmd);
                 }
                 results.EPOCHREALTIME = executeAdb("shell echo $EPOCHREALTIME");

@@ -982,7 +982,10 @@ struct PerfDoctorApp : public App
             }
         }
 
-        lines = executeAdb("shell pm list packages -3");
+        if (LIST_ALL_APP)
+            lines = executeAdb("shell pm list packages");
+        else
+            lines = executeAdb("shell pm list packages -3");
         for (auto& line : lines)
         {
             auto tokens = split(line, ':');

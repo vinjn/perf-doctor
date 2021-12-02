@@ -1772,7 +1772,7 @@ struct PerfDoctorApp : public App
                 {
                     if (config.cpuinfo_min_freq > 0)
                     {
-                        ImGui::Text("cpu_%d: %s %.2f~%.2f MHz",
+                        ImGui::Text("cpu_%d: %s %.2f~%.2f GHz",
                             config.id, config.part.c_str(),
                             config.cpuinfo_min_freq / 1e6, config.cpuinfo_max_freq / 1e6);
                     }

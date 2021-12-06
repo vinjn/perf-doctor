@@ -182,7 +182,6 @@
     <ClInclude Include="..\3rdparty\Cinder-VNM\include\StateMachine.h" />
     <ClInclude Include="..\3rdparty\Cinder-VNM\include\TextureHelper.h" />
     <ClInclude Include="..\3rdparty\Cinder-VNM\include\TuioHelper.h" />
-    <ClInclude Include="..\src\MixDevice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\3rdparty\Cinder-VNM\ui\implot\implot.cpp" />

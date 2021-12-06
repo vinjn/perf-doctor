@@ -670,7 +670,7 @@ struct PerfDoctorApp : public App
         }
     };
 
-    MetricSummary mFpsSummary, mMemorySummary, mAppCpuSummary, mCpuTempSummary;
+    MetricSummary mFpsSummary, mMemorySummary, mAppCpuSummary, mCpuTempSummary, mFrameTimeSummary;
     int mDeviceId = -1;
 
     bool refreshDeviceNames()
@@ -1205,6 +1205,7 @@ struct PerfDoctorApp : public App
         mMemorySummary.Min = FLT_MAX;
         mAppCpuSummary.Min = FLT_MAX;
         mCpuTempSummary.Min = FLT_MAX;
+        mFrameTimeSummary.Min = FLT_MAX;
 
         auto lines = executeAdb("shell dumpsys SurfaceFlinger --list");
         for (auto& line : lines)
@@ -1250,6 +1251,7 @@ struct PerfDoctorApp : public App
         mMemorySummary.reset();
         mAppCpuSummary.reset();
         mCpuTempSummary.reset();
+        mFrameTimeSummary.reset();
 
         mTemperatureStats.clear();
     }
@@ -1382,7 +1384,11 @@ struct PerfDoctorApp : public App
 
                 mTimestamps.push_back(ts);
                 if (mTimestamps.size() > 1)
-                    mFrameTimes.push_back({ ts, ts - mTimestamps[mTimestamps.size() - 2] }); // -2 is prev item
+                {
+                    auto frametime = ts - mTimestamps[mTimestamps.size() - 2];
+                    mFrameTimeSummary.update(frametime, mFrameTimes.size());
+                    mFrameTimes.push_back({ ts, frametime }); // -2 is prev item
+                }
             }
 
             if (firstFrameTimestamp == 0 && !mTimestamps.empty())
@@ -1612,7 +1618,7 @@ struct PerfDoctorApp : public App
             auto& metrics = storage.metric_storage["frame_time"];
             metrics.name = "frame_time";
             metrics.min_x = -1;
-            metrics.max_x = 50;
+            metrics.max_x = mFrameTimeSummary.Max + 10;
         }
         {
             auto& metrics = storage.metric_storage["fps"];

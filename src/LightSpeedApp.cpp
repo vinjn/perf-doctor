@@ -1383,6 +1383,8 @@ struct PerfDoctorApp : public App
                 }
 
                 mTimestamps.push_back(ts);
+
+                prevMaxTimestamp = mTimestamps[mTimestamps.size() - 1];
                 if (mTimestamps.size() > 1)
                 {
                     auto frametime = ts - mTimestamps[mTimestamps.size() - 2];

@@ -7,7 +7,16 @@
 #include "cinder/ConcurrentCircularBuffer.h"
 #include "cinder/Json.h"
 
+#ifdef MIX_DEVICE_ENABLED
 #include "MixDevice.h"
+#else
+struct MixDevice
+{
+    void setup()
+    {
+    }
+};
+#endif
 
 #include "AssetManager.h"
 #include "MiniConfigImgui.h"

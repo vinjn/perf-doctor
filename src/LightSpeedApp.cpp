@@ -681,6 +681,9 @@ struct PerfDoctorApp : public App
 
             if (tokens[1] != "device")
             {
+#if 1
+                ::MessageBoxA(NULL, "Device is unauthorized", tokens[0].c_str(), MB_OK);
+#else
                 dispatchAsync([] {
                     ImGui::OpenPopup("Device is unauthorized");
 
@@ -698,6 +701,7 @@ struct PerfDoctorApp : public App
                         ImGui::EndPopup();
                     }
                 });
+#endif
                 continue;
             }
 

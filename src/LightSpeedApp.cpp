@@ -178,7 +178,7 @@ struct CpuStat
 {
     int cpu_id;
     long int user, nice, sys, idle, iowait, irq, softirq;
-    int freq;
+    int freq = -1;
 
     CpuStat(const string& line)
     {
@@ -791,7 +791,7 @@ struct PerfDoctorApp : public App
         storage.metric_storage["cpu_usage"].visible = false;
         storage.metric_storage["core_usage"].visible = false;
         storage.metric_storage["memory_usage"].visible = false;
-        storage.metric_storage["cpu_freq"].visible = false;
+        storage.metric_storage["core_freq"].visible = false;
         storage.metric_storage["temperature"].visible = false;
 
         auto lines = executeIdb("-c applist");
@@ -852,7 +852,7 @@ struct PerfDoctorApp : public App
         storage.metric_storage["cpu_usage"].visible = true;
         storage.metric_storage["core_usage"].visible = true;
         storage.metric_storage["memory_usage"].visible = true;
-        storage.metric_storage["cpu_freq"].visible = false;
+        storage.metric_storage["core_freq"].visible = false;
         storage.metric_storage["temperature"].visible = true;
 
         if (count(mSerialNames[DEVICE_ID].begin(), mSerialNames[DEVICE_ID].end(), '.') == 3)
@@ -1159,38 +1159,73 @@ struct PerfDoctorApp : public App
         }
 
         {
-            fprintf(fp, "Num,FPS,"
-                "Memory[MB],NativePss[MB],"
-                "Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
-                "PrivateClean[MB],PrivateDirty[MB],"
-                "CpuTemp,GpuTemp,BatteryTemp\n");
+            fprintf(fp, "Num,FPS,");
+
+            if (storage.metric_storage["memory_usage"].visible)
+            {
+                fprintf(fp, "Memory[MB],NativePss[MB],"
+                    "Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
+                    "PrivateClean[MB],PrivateDirty[MB],");
+            }
+            if (storage.metric_storage["temperature"].visible)
+                fprintf(fp,"CpuTemp,GpuTemp,BatteryTemp,");
+
+            if (storage.metric_storage["core_freq"].visible)
+            {
+                for (int i = 0; i < mCpuConfigs.size(); i++)
+                    fprintf(fp, "CPUClock%d[MHz],", i);
+            }
+            if (storage.metric_storage["core_usage"].visible)
+            {
+                for (int i = 0; i < mCpuConfigs.size(); i++)
+                    fprintf(fp, "CPUUsage%d[%%],", i);
+            }
+            fprintf(fp, "\n");
 
             int memory_count = min<int>(mFpsArray.size(), mMemoryStats.size());
             int fps_offset = mFpsArray.size() - memory_count;
-            for (int i = 0; i < memory_count; i++)
+            for (int i = 0; i < memory_count - 1; i++)
             {
                 const auto& memStat = mMemoryStats[i].second;
-                fprintf(fp, "%d,%.1f,"
-                    "%.0f,%.0f,"
-                    "%.0f,%.0f,%.0f,%.0f,"
-                    "%.0f,%.0f,",
-                    i, mFpsArray[fps_offset+i].second,
-                    memStat.pssTotal, memStat.pssNativeHeap,
-                    memStat.pssGfx, memStat.pssEGL, memStat.pssGL, memStat.pssUnknown,
-                    memStat.privateClean, memStat.privateDirty
-                );
+                fprintf(fp, "%d,%.1f,",
+                    i, mFpsArray[fps_offset + i].second);
+                if (storage.metric_storage["memory_usage"].visible)
+                {
+                    fprintf(fp,"%.0f,%.0f,"
+                        "%.0f,%.0f,%.0f,%.0f,"
+                        "%.0f,%.0f,",
+                        memStat.pssTotal, memStat.pssNativeHeap,
+                        memStat.pssGfx, memStat.pssEGL, memStat.pssGL, memStat.pssUnknown,
+                        memStat.privateClean, memStat.privateDirty);
+                }
 
-                if (!mTemperatureStats.empty())
+                if (storage.metric_storage["temperature"].visible)
                 {
-                    fprintf(fp, "%.1f,%.1f,%.1f\n",
-                        max<float>(mTemperatureStats[i].second.cpu, 0), 
-                        max<float>(mTemperatureStats[i].second.gpu, 0),
-                        max<float>(mTemperatureStats[i].second.battery, 0));
+                    if (!mTemperatureStats.empty())
+                    {
+                        fprintf(fp, "%.1f,%.1f,%.1f,",
+                            max<float>(mTemperatureStats[i].second.cpu, 0), 
+                            max<float>(mTemperatureStats[i].second.gpu, 0),
+                            max<float>(mTemperatureStats[i].second.battery, 0));
+                    }
+                    else
+                    {
+                        fprintf(fp, "0,0,0,");
+                    }
                 }
-                else
+
+                if (storage.metric_storage["core_freq"].visible)
                 {
-                    fprintf(fp, "0,0,0\n");
+                    for (int k = 0; k < mCpuConfigs.size(); k++)
+                        fprintf(fp, "%.0f,", max<float>(mChildCpuStats[k][i].second.freq * 1e-3, 0));
                 }
+                if (storage.metric_storage["core_usage"].visible)
+                {
+                    for (int k = 0; k < mCpuConfigs.size(); k++)
+                        fprintf(fp, "%.0f,", calcCpuUsage(mChildCpuStats[k][i].second, mChildCpuStats[k][i + 1].second));
+                }
+
+                fprintf(fp, "\n");
             }
             fprintf(fp, "\n");
         }
@@ -1648,8 +1683,8 @@ struct PerfDoctorApp : public App
             metrics.max_x = mMemorySummary.Max + 200;
         }
         {
-            auto& metrics = storage.metric_storage["cpu_freq"];
-            metrics.name = "cpu_freq";
+            auto& metrics = storage.metric_storage["core_freq"];
+            metrics.name = "core_freq";
             metrics.min_x = -1;
             metrics.max_x = 101;
         }
@@ -1929,7 +1964,7 @@ struct PerfDoctorApp : public App
                         ImPlot::PlotLineG(label, cpuUsage_getter, (void*)&mChildCpuStats[i], mChildCpuStats[i].size() - 1);
                     }
                 }
-                else if (series.name == "cpu_freq")
+                else if (series.name == "core_freq")
                 {
                     char label[] = "cpu_0";
                     for (int i = 0; i < mCpuConfigs.size(); i++)
@@ -2067,7 +2102,7 @@ struct PerfDoctorApp : public App
                     results.dumpsys_meminfo = executeAdb(cmd);
                 }
 
-                if (storage.metric_storage["cpu_freq"].visible)
+                if (storage.metric_storage["core_freq"].visible)
                 {
                     results.scaling_cur_freq = executeAdb("shell cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq");
                 }

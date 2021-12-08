@@ -1159,7 +1159,8 @@ struct PerfDoctorApp : public App
 
         {
             fprintf(fp, "Num,FPS,"
-                "Memory[MB],NativePss[MB],Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
+                "Memory[MB],NativePss[MB],"
+                "Gfx[MB],EGL[MB],GL[MB],Unknown[MB],"
                 "PrivateClean[MB],PrivateDirty[MB],"
                 "CpuTemp,GpuTemp,BatteryTemp\n");
 
@@ -1167,16 +1168,26 @@ struct PerfDoctorApp : public App
             int fps_offset = mFpsArray.size() - memory_count;
             for (int i = 0; i < memory_count; i++)
             {
+                const auto& memStat = mMemoryStats[i].second;
                 fprintf(fp, "%d,%.1f,"
-                    "%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,"
                     "%.0f,%.0f,"
-                    "%.0f,%.0f,%.0f\n",
+                    "%.0f,%.0f,%.0f,%.0f,"
+                    "%.0f,%.0f,",
                     i, mFpsArray[fps_offset+i].second,
-                    mMemoryStats[i].second.pssTotal, mMemoryStats[i].second.pssNativeHeap, mMemoryStats[i].second.pssUnknown,
-                    mMemoryStats[i].second.pssGfx, mMemoryStats[i].second.pssEGL, mMemoryStats[i].second.pssGL,
-                    mMemoryStats[i].second.privateClean, mMemoryStats[i].second.privateDirty,
-                    mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery
+                    memStat.pssTotal, memStat.pssNativeHeap,
+                    memStat.pssGfx, memStat.pssEGL, memStat.pssGL, memStat.pssUnknown,
+                    memStat.privateClean, memStat.privateDirty
                 );
+
+                if (!mTemperatureStats.empty())
+                {
+                    fprintf(fp, "%.1f,%.1f,%.1f\n",
+                        mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery);
+                }
+                else
+                {
+                    fprintf(fp, "0,0,0\n");
+                }
             }
             fprintf(fp, "\n");
         }
@@ -1455,32 +1466,32 @@ struct PerfDoctorApp : public App
                         if (line.find("Native Heap") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssNativeHeap = fromString<int>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssNativeHeap = fromString<float>(tokens[2]) / 1024; // KB -> MB
                         }
                         else if (line.find("EGL mtrack") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssEGL = fromString<int>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssEGL = fromString<float>(tokens[2]) / 1024; // KB -> MB
                         }
                         else if (line.find("Gfx dev") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssGfx = fromString<int>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssGfx = fromString<float>(tokens[2]) / 1024; // KB -> MB
                         }
                         else if (line.find("GL mtrack") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssGL = fromString<int>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssGL = fromString<float>(tokens[2]) / 1024; // KB -> MB
                         }
                         else if (line.find("Unknown") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssUnknown = fromString<int>(tokens[1]) / 1024; // KB -> MB
+                            stat.pssUnknown = fromString<float>(tokens[1]) / 1024; // KB -> MB
                         }
                         else if (line.find("TOTAL") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssTotal = fromString<int>(tokens[1]) / 1024; // KB -> MB
+                            stat.pssTotal = fromString<float>(tokens[1]) / 1024; // KB -> MB
 
                             mMemorySummary.update(stat.pssTotal, mMemoryStats.size());
 
@@ -1494,12 +1505,12 @@ struct PerfDoctorApp : public App
                         if (line.find("Private_Clean") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.privateClean = fromString<int>(tokens[1]) / 1024; // KB -> MB
+                            stat.privateClean = fromString<float>(tokens[1]) / 1024; // KB -> MB
                         }
                         else if (line.find("Private_Dirty") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.privateDirty = fromString<int>(tokens[1]) / 1024; // KB -> MB
+                            stat.privateDirty = fromString<float>(tokens[1]) / 1024; // KB -> MB
                         }
                     }
 

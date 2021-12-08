@@ -57,9 +57,9 @@ struct MemoryStat
 
 struct TemperatureStatSlot
 {
-    int cpu = -1;
-    int gpu = -1;
-    int battery = -1;
+    string cpu;
+    string gpu;
+    string battery;
 };
 
 struct TemperatureStat
@@ -556,7 +556,6 @@ struct AdbResults
     vector<string> proc_stat;
     vector<string> proc_pid_stat;
     vector<string> dumpsys_meminfo;
-    vector<string> proc_pid_smaps_rollup;
     vector<string> scaling_cur_freq;
     TemperatureStat temperature;
 };
@@ -677,7 +676,7 @@ struct PerfDoctorApp : public App
     {
         mSerialNames.clear();
         mDeviceNames.clear();
-        mTemparatureStatSlot = { -1, -1, -1 };
+        mTemparatureStatSlot = { "","", "" };
 
         char cmd[256];
 
@@ -976,22 +975,24 @@ struct PerfDoctorApp : public App
         }
 
         {
+            auto thermalFiles = executeAdb("shell ls /sys/devices/virtual/thermal/thermal_zone*/temp");
+
             auto lines = executeAdb("shell cat /sys/devices/virtual/thermal/thermal_zone*/type");
             for (int i = 0; i < lines.size(); i++)
             {
-                if (mTemparatureStatSlot.cpu == -1 && (
+                if (mTemparatureStatSlot.cpu.empty() && (
                     lines[i].find("cpuss-") != string::npos
                     || lines[i].find("soc_thermal") != string::npos
                     ))
-                    mTemparatureStatSlot.cpu = i;
-                if (mTemparatureStatSlot.gpu == -1 && lines[i].find("gpuss-") != string::npos)
-                    mTemparatureStatSlot.gpu = i;
+                    mTemparatureStatSlot.cpu = thermalFiles[i];
+                if (mTemparatureStatSlot.gpu.empty() && lines[i].find("gpuss-") != string::npos)
+                    mTemparatureStatSlot.gpu = thermalFiles[i];
      
-                if (mTemparatureStatSlot.battery == -1 && (
+                if (mTemparatureStatSlot.battery.empty() && (
                     lines[i].find("battery") != string::npos
                     || lines[i].find("Battery") != string::npos
                     ))
-                    mTemparatureStatSlot.battery = i;
+                    mTemparatureStatSlot.battery = thermalFiles[i];
             }
         }
 
@@ -1182,7 +1183,9 @@ struct PerfDoctorApp : public App
                 if (!mTemperatureStats.empty())
                 {
                     fprintf(fp, "%.1f,%.1f,%.1f\n",
-                        mTemperatureStats[i].second.cpu, mTemperatureStats[i].second.gpu, mTemperatureStats[i].second.battery);
+                        max<float>(mTemperatureStats[i].second.cpu, 0), 
+                        max<float>(mTemperatureStats[i].second.gpu, 0),
+                        max<float>(mTemperatureStats[i].second.battery, 0));
                 }
                 else
                 {
@@ -1471,46 +1474,33 @@ struct PerfDoctorApp : public App
                         else if (line.find("EGL mtrack") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssEGL = fromString<float>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssEGL = fromString<float>(tokens[2]) / 1024;
                         }
                         else if (line.find("Gfx dev") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssGfx = fromString<float>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssGfx = fromString<float>(tokens[2]) / 1024;
                         }
                         else if (line.find("GL mtrack") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssGL = fromString<float>(tokens[2]) / 1024; // KB -> MB
+                            stat.pssGL = fromString<float>(tokens[2]) / 1024;
                         }
                         else if (line.find("Unknown") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssUnknown = fromString<float>(tokens[1]) / 1024; // KB -> MB
+                            stat.pssUnknown = fromString<float>(tokens[1]) / 1024;
                         }
                         else if (line.find("TOTAL") != string::npos)
                         {
                             auto& tokens = split(line, ' ');
-                            stat.pssTotal = fromString<float>(tokens[1]) / 1024; // KB -> MB
+                            stat.pssTotal = fromString<float>(tokens[1]) / 1024;
+                            stat.privateDirty = fromString<float>(tokens[2]) / 1024;
+                            stat.privateClean= fromString<float>(tokens[3]) / 1024;
 
                             mMemorySummary.update(stat.pssTotal, mMemoryStats.size());
 
                             break;
-                        }
-                    }
-
-                    lines = results.proc_pid_smaps_rollup;
-                    for (auto& line : lines)
-                    {
-                        if (line.find("Private_Clean") != string::npos)
-                        {
-                            auto& tokens = split(line, ' ');
-                            stat.privateClean = fromString<float>(tokens[1]) / 1024; // KB -> MB
-                        }
-                        else if (line.find("Private_Dirty") != string::npos)
-                        {
-                            auto& tokens = split(line, ' ');
-                            stat.privateDirty = fromString<float>(tokens[1]) / 1024; // KB -> MB
                         }
                     }
 
@@ -1533,7 +1523,7 @@ struct PerfDoctorApp : public App
             {
                 if (results.temperature.cpu > 0 || results.temperature.gpu > 0)
                 {
-                    if (mTemparatureStatSlot.cpu != -1)
+                    if (!mTemparatureStatSlot.cpu.empty())
                         mCpuTempSummary.update(results.temperature.cpu, mTemperatureStats.size());
                     mTemperatureStats.push_back({ millisec_since_epoch, results.temperature });
                 }
@@ -1959,11 +1949,11 @@ struct PerfDoctorApp : public App
                 }
                 else if (series.name == "temperature")
                 {
-                    if (mTemparatureStatSlot.cpu != -1)
+                    if (!mTemparatureStatSlot.cpu.empty())
                         ImPlot::PlotLineG("cpu", temp_cpu_getter, (void*)&mTemperatureStats, mTemperatureStats.size());
-                    if (mTemparatureStatSlot.gpu != -1)
+                    if (!mTemparatureStatSlot.gpu.empty())
                         ImPlot::PlotLineG("gpu", temp_gpu_getter, (void*)&mTemperatureStats, mTemperatureStats.size());
-                    if (mTemparatureStatSlot.battery != -1)
+                    if (!mTemparatureStatSlot.battery.empty())
                         ImPlot::PlotLineG("battery", temp_battery_getter, (void*)&mTemperatureStats, mTemperatureStats.size());
                 }
                 else
@@ -2075,9 +2065,6 @@ struct PerfDoctorApp : public App
                 {
                     sprintf(cmd, "shell dumpsys meminfo %s", mPackageName.c_str());
                     results.dumpsys_meminfo = executeAdb(cmd);
-
-                    sprintf(cmd, "shell cat /proc/%d/smaps_rollup", pid);
-                    results.proc_pid_smaps_rollup = executeAdb(cmd);
                 }
 
                 if (storage.metric_storage["cpu_freq"].visible)
@@ -2093,21 +2080,21 @@ struct PerfDoctorApp : public App
                 }
 
                 {
-                    if (mTemparatureStatSlot.cpu != -1)
+                    if (!mTemparatureStatSlot.cpu.empty())
                     {
-                        sprintf(cmd, "shell cat /sys/devices/virtual/thermal/thermal_zone%d/temp", mTemparatureStatSlot.cpu);
+                        sprintf(cmd, "shell cat %s", mTemparatureStatSlot.cpu.c_str());
                         auto lines = executeAdb(cmd);
                         if (!lines.empty()) results.temperature.cpu = stoi(lines[0]) * 1e-3;
                     }
-                    if (mTemparatureStatSlot.gpu != -1)
+                    if (!mTemparatureStatSlot.gpu.empty())
                     {
-                        sprintf(cmd, "shell cat /sys/devices/virtual/thermal/thermal_zone%d/temp", mTemparatureStatSlot.gpu);
+                        sprintf(cmd, "shell cat %s", mTemparatureStatSlot.gpu.c_str());
                         auto lines = executeAdb(cmd);
                         if (!lines.empty()) results.temperature.gpu = stoi(lines[0]) * 1e-3;
                     }
-                    if (mTemparatureStatSlot.battery != -1)
+                    if (!mTemparatureStatSlot.battery.empty())
                     {
-                        sprintf(cmd, "shell cat /sys/devices/virtual/thermal/thermal_zone%d/temp", mTemparatureStatSlot.battery);
+                        sprintf(cmd, "shell cat %s", mTemparatureStatSlot.battery.c_str());
                         auto lines = executeAdb(cmd);
                         if (!lines.empty()) results.temperature.battery = stoi(lines[0]) * 1e-3;
                     }

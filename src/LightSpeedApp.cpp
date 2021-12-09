@@ -1217,12 +1217,22 @@ struct PerfDoctorApp : public App
                 if (storage.metric_storage["core_freq"].visible)
                 {
                     for (int k = 0; k < mCpuConfigs.size(); k++)
-                        fprintf(fp, "%.0f,", max<float>(mChildCpuStats[k][i].second.freq * 1e-3, 0));
+                    {
+                        if (i < mChildCpuStats[k].size())
+                            fprintf(fp, "%.0f,", max<float>(mChildCpuStats[k][i].second.freq * 1e-3, 0));
+                        else
+                            fprintf(fp, "0,");
+                    }
                 }
                 if (storage.metric_storage["core_usage"].visible)
                 {
                     for (int k = 0; k < mCpuConfigs.size(); k++)
-                        fprintf(fp, "%.0f,", calcCpuUsage(mChildCpuStats[k][i].second, mChildCpuStats[k][i + 1].second));
+                    {
+                        if (i < mChildCpuStats[k].size())
+                            fprintf(fp, "%.0f,", calcCpuUsage(mChildCpuStats[k][i].second, mChildCpuStats[k][i + 1].second));
+                        else
+                            fprintf(fp, "0,");
+                    }
                 }
 
                 fprintf(fp, "\n");

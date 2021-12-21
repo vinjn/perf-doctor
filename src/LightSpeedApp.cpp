@@ -1272,12 +1272,13 @@ struct PerfDoctorApp : public App
             if (line.find("SurfaceView") != 0) continue;
             if (line.find(pacakgeName) == string::npos) continue;
 
-            mSurfaceViewName = line;
+            if (mSurfaceViewName.empty() || line.find("BLAST") != 0)
+                mSurfaceViewName = line;
             CI_LOG_W("Found SurfaceView:" << mSurfaceViewName);
 
             //executeAdb("shell dumpsys SurfaceFlinger --latency-clear");
 
-            break;
+            //break;
             // TODO: support multi-surface view
         }
 

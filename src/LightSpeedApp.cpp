@@ -84,8 +84,9 @@ struct DeviceStat
     int width = 0, height = 0;
     string os_version;
     string gfx_api_version;
-    string market_name;
+    string market_name; // iOS only
     string hardware;
+    string gpu_name;
 };
 
 string getTimestampForFilename()
@@ -975,6 +976,17 @@ struct PerfDoctorApp : public App
         }
 
         {
+            // gpu name
+            lines = executeAdb("shell \"dumpsys SurfaceFlinger | grep GLES\"");
+            if (!lines.empty())
+            {
+                auto tokens = split(lines[0], ',');
+                if (tokens.size() > 2)
+                    mDeviceStat.gpu_name = tokens[1];
+            }
+        }
+
+        {
             auto thermalFiles = executeAdb("shell ls /sys/devices/virtual/thermal/thermal_zone*/temp");
 
             auto lines = executeAdb("shell cat /sys/devices/virtual/thermal/thermal_zone*/type");
@@ -1138,13 +1150,14 @@ struct PerfDoctorApp : public App
 
         {
             fprintf(fp, "DeviceInfo\n");
-            fprintf(fp, "Device Name,OS,OpenGL,SerialNum,CPU Info\n"
-                "%s,%s,%s,%s,%s\n",
+            fprintf(fp, "Device Name,OS,OpenGL,SerialNum,CPU Info, GPU\n"
+                "%s,%s,%s,%s,%s,%s\n",
                 mDeviceNames[DEVICE_ID].c_str(),
                 mDeviceStat.os_version.c_str(),
                 mDeviceStat.gfx_api_version.c_str(),
                 mSerialNames[DEVICE_ID].c_str(),
-                mDeviceStat.hardware.c_str()
+                mDeviceStat.hardware.c_str(),
+                mDeviceStat.gpu_name.c_str()
             );
             fprintf(fp, "\n");
         }
@@ -1832,6 +1845,8 @@ struct PerfDoctorApp : public App
                     ImGui::Text(mDeviceStat.os_version.c_str());
                 if (!mDeviceStat.hardware.empty())
                     ImGui::Text("%s", mDeviceStat.hardware.c_str());
+                if (!mDeviceStat.gpu_name.empty())
+                    ImGui::Text("%s", mDeviceStat.gpu_name.c_str());
                 if (mDeviceStat.width > 0 && mDeviceStat.height > 0)
                     ImGui::Text("%d x %d", mDeviceStat.width, mDeviceStat.height);
                 if (!mDeviceStat.gfx_api_version.empty())

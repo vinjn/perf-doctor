@@ -1258,6 +1258,13 @@ struct PerfDoctorApp : public App
         return true;
     }
 
+    void trimMemory(const char* level)
+    {
+        char cmd[256];
+        sprintf(cmd, "shell am send-trim-memory %s %s", mAppNames[mAppId].c_str(), level);
+        auto lines = executeAdb(cmd);
+    }
+
     bool startProfiler(const string& pacakgeName)
     {
         if (mIsIOSDevices[DEVICE_ID]) return startProfiler_ios(pacakgeName);
@@ -1790,6 +1797,15 @@ struct PerfDoctorApp : public App
                 }
 
                 ImGui::Unindent();
+
+                {
+                    if (ImGui::Button("Trim Memory")) trimMemory("RUNNING_MODERATE");
+                    ImGui::SameLine();
+                    if (ImGui::Button("Low")) trimMemory("RUNNING_LOW");
+                    ImGui::SameLine();
+                    if (ImGui::Button("Critical")) trimMemory("RUNNING_CRITICAL");
+                }
+
                 if (mIsProfiling)
                 {
                     if (ImGui::Button("Stop Profiling"))

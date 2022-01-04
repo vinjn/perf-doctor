@@ -42,6 +42,13 @@ struct Span
     float end = 0;
 };
 
+struct LabelPair
+{
+    string name;
+    uint64_t start = 0;
+    uint64_t end = 0;
+};
+
 struct MemoryStat
 {
     float pssTotal;
@@ -268,6 +275,23 @@ struct SpanSeries
     }
 };
 
+// Plots axis-aligned, filled rectangles. Every two consecutive points defines opposite corners of a single rectangle.
+static ImPlotPoint label_getter(void* data, int idx)
+{
+    auto* self = (LabelPair*)data;
+    int span_idx = idx / 2;
+    int tag = idx % 2;
+    if (tag == 0)
+    {
+        float start_t = (self[span_idx].start - firstFrameTimestamp) * 1e-3;
+        return ImPlotPoint(start_t, 0);
+    }
+    else
+    {
+        float end_t = (self[span_idx].end - firstFrameTimestamp) * 1e-3;
+        return ImPlotPoint(end_t, 10);
+    }
+}
 struct MetricSeries
 {
     bool visible = true;
@@ -642,6 +666,7 @@ struct PerfDoctorApp : public App
     vector<pair<uint64_t, AppCpuStat>> mAppCpuStats;
     vector<pair<uint64_t, CpuStat>> mChildCpuStats[8];
     vector<pair<uint64_t, MemoryStat>> mMemoryStats;
+    vector<LabelPair> mLabelPairs;
 
     TemperatureStatSlot mTemparatureStatSlot;
     vector<pair<uint64_t, TemperatureStat>> mTemperatureStats;
@@ -788,7 +813,6 @@ struct PerfDoctorApp : public App
     bool refreshDeviceDetails_ios()
     {
         storage.metric_storage["frame_time"].visible = false;
-        storage.metric_storage["fps"].visible = true;
         storage.metric_storage["cpu_usage"].visible = false;
         storage.metric_storage["core_usage"].visible = false;
         storage.metric_storage["memory_usage"].visible = false;
@@ -846,10 +870,11 @@ struct PerfDoctorApp : public App
 
         if (DEVICE_ID == -1) return true;
 
+        storage.metric_storage["fps"].visible = true;
+
         if (mIsIOSDevices[DEVICE_ID]) return refreshDeviceDetails_ios();
 
         storage.metric_storage["frame_time"].visible = false;
-        storage.metric_storage["fps"].visible = true;
         storage.metric_storage["cpu_usage"].visible = true;
         storage.metric_storage["core_usage"].visible = true;
         storage.metric_storage["memory_usage"].visible = true;
@@ -1334,6 +1359,8 @@ struct PerfDoctorApp : public App
         mFrameTimeSummary.reset();
 
         mTemperatureStats.clear();
+
+        mLabelPairs.clear();
     }
 
     bool stopProfiler()
@@ -1397,6 +1424,7 @@ struct PerfDoctorApp : public App
             {
                 auto& tokens = split(lines[i], '\t');
                 if (tokens.size() < 3) continue; // it happens sometimes
+                if (tokens[0][0] == '0') continue;
                 timestamps.push_back({ tokens[0], tokens[1], tokens[2] });
             }
 
@@ -1478,6 +1506,12 @@ struct PerfDoctorApp : public App
                 // TODO: a potential bug
                 firstFrameTimestamp = mTimestamps[0];
                 deltaTimestamp = mTimestamps[mTimestamps.size() - 1] - firstFrameTimestamp;
+
+                // init first label
+                if (mLabelPairs.empty())
+                {
+                    mLabelPairs.push_back({ "default", firstFrameTimestamp, 0});
+                }
             }
         }
         auto lines = results.EPOCHREALTIME;
@@ -1679,9 +1713,19 @@ struct PerfDoctorApp : public App
     {
         global_min_t = RANGE_START;
         if (!mTimestamps.empty())
-            global_max_t = max<float>((mTimestamps[mTimestamps.size() - 1] - mTimestamps[0]) * 1e-3, (RANGE_START + RANGE_DURATION));
+        {
+            auto finalTimestamp = mTimestamps[mTimestamps.size() - 1];
+            global_max_t = max<float>((finalTimestamp - mTimestamps[0]) * 1e-3, (RANGE_START + RANGE_DURATION));
+            if (!mLabelPairs.empty())
+            {
+                mLabelPairs[mLabelPairs.size() - 1].end = finalTimestamp;
+            }
+        }
         else
+        {
+            // TODO: a bug here?
             global_max_t = max<float>((mCpuStats[mCpuStats.size() - 1].first - firstCpuStatTimestamp) * 1e-3, (RANGE_START + RANGE_DURATION));
+        }
 
         {
             auto& metrics = storage.metric_storage["frame_time"];
@@ -1896,6 +1940,7 @@ struct PerfDoctorApp : public App
 
     void drawPerfPanel()
     {
+#if 0
         for (const auto& kv : storage.span_storage)
         {
             auto& series = kv.second;
@@ -1904,10 +1949,10 @@ struct PerfDoctorApp : public App
             ImPlot::SetNextPlotLimitsX(global_min_t, global_max_t, ImGuiCond_Always);
             ImPlot::SetNextPlotTicksY(0, 10, 2);
 
-            if (ImPlot::BeginPlot(series.name.c_str(), NULL, NULL, ImVec2(-1, PANEL_HEIGHT), ImPlotFlags_NoChild, ImPlotAxisFlags_None))
+            if (ImPlot::BeginPlot(series_name.c_str(), NULL, NULL, ImVec2(-1, PANEL_HEIGHT), ImPlotFlags_NoChild, ImPlotAxisFlags_None))
             {
                 //ImPlot::PushStyleColor(ImPlotCol_Line, items[i].Col);
-                ImPlot::PlotRects(series.name.c_str(), SpanSeries::getter, (void*)&series, series.span_array.size() * 2);
+                ImPlot::PlotRects(series_name.c_str(), SpanSeries::getter, (void*)&series, series.span_array.size() * 2);
                 for (const auto& span : series.span_array)
                 {
                     ImPlot::PlotText(span.name.c_str(), span.start/*  / TIME_UNIT_SCALE */, 0, false, ImVec2(0, -PANEL_HEIGHT / 2));
@@ -1944,60 +1989,92 @@ struct PerfDoctorApp : public App
                 ImPlot::EndPlot();
             }
         }
+#endif
 
+        bool s_drawLabel = true;
         for (const auto& kv : storage.metric_storage)
         {
             auto& series = kv.second;
+            auto& series_name = kv.first;
             if (!series.visible) continue;
+
+            if (s_drawLabel)
+            {
+                s_drawLabel = false;
+                float height = 1;
+                //ImPlot::SetNextPlotTicksX(global_min_t, global_max_t, PANEL_TICK_T);
+                ImPlot::SetNextPlotLimitsX(global_min_t, global_max_t, ImGuiCond_Always);
+                //ImPlot::SetNextPlotTicksY(series.min_x, series.max_x, PANEL_TICK_X);
+                ImPlot::SetNextPlotLimitsY(0, height, ImGuiCond_Always);
+                auto color = ImVec4(0.3f, 0.3f, 0.3f, 0.5f);
+                ImPlot::PushStyleColor(ImPlotCol_Fill, color);
+
+                if (ImPlot::BeginPlot("label", NULL, NULL, ImVec2(-1, 60), 
+                    ImPlotFlags_NoLegend | ImPlotFlags_NoTitle | ImPlotFlags_NoMenus, ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks, ImPlotAxisFlags_NoDecorations))
+                {
+                    ImPlot::PlotRects("label", label_getter, (void*)mLabelPairs.data(), mLabelPairs.size() * 2);
+                    for (const auto& pair : mLabelPairs)
+                    {
+                        float start = (pair.start - firstFrameTimestamp) * 1e-3;
+                        float end = (pair.end - firstFrameTimestamp) * 1e-3;
+
+                        ImPlot::PlotText(pair.name.c_str(), (start + end) * 0.5, height / 2, false);
+                    }
+                    ImPlot::EndPlot();
+                }
+
+                ImPlot::PopStyleColor();
+            }
 
             //ImPlot::SetNextPlotTicksX(global_min_t, global_max_t, PANEL_TICK_T);
             ImPlot::SetNextPlotLimitsX(global_min_t, global_max_t, ImGuiCond_Always);
             //ImPlot::SetNextPlotTicksY(series.min_x, series.max_x, PANEL_TICK_X);
             ImPlot::SetNextPlotLimitsY(series.min_x, series.max_x, ImGuiCond_Always);
 
-            string title = series.name;
+            string title = series_name;
             char text[256];
 
-            if (series.name == "fps" && !mFpsArray.empty())
+            if (series_name == "fps" && !mFpsArray.empty())
             {
                 sprintf(text, "fps [%.1f, %.1f] avg: %.1f", mFpsSummary.Min, mFpsSummary.Max, mFpsSummary.Avg);
                 title = text;
             }
-            if (series.name == "memory_usage" && !mMemoryStats.empty())
+            if (series_name == "memory_usage" && !mMemoryStats.empty())
             {
                 sprintf(text, "memory_usage [%.0f, %.0f] avg: %.0f", mMemorySummary.Min, mMemorySummary.Max, mMemorySummary.Avg);
                 title = text;
             }
-            if (series.name == "temperature" && !mTemperatureStats.empty())
+            if (series_name == "temperature" && !mTemperatureStats.empty())
             {
                 sprintf(text, "temperature [%.0f, %.0f] avg: %.0f", mCpuTempSummary.Min, mCpuTempSummary.Max, mCpuTempSummary.Avg);
                 title = text;
             }
-            if (series.name == "cpu_usage" && !mAppCpuStats.empty())
+            if (series_name == "cpu_usage" && !mAppCpuStats.empty())
             {
                 sprintf(text, "cpu_usage [%.0f, %.0f] avg: %.1f", mAppCpuSummary.Min, mAppCpuSummary.Max, mAppCpuSummary.Avg);
                 //title = text;
                 // TODO: fix bug
             }
-            if (ImPlot::BeginPlot(title.c_str(), NULL, NULL, ImVec2(-1, PANEL_HEIGHT), ImPlotFlags_NoChild, ImPlotAxisFlags_None))
+            if (ImPlot::BeginPlot(title.c_str(), NULL, NULL, ImVec2(-1, PANEL_HEIGHT), 
+                ImPlotFlags_NoChild | ImPlotFlags_NoMenus, ImPlotAxisFlags_NoDecorations))
             {
                 ImPlot::SetLegendLocation(ImPlotLocation_North | ImPlotLocation_West);
 
                 //ImPlot::PushStyleColor(ImPlotCol_Line, items[i].Col);
-                if (series.name == "frame_time")
+                if (series_name == "frame_time")
                 {
-                    ImPlot::PlotLineG(series.name.c_str(), frameTime_getter, (void*)&mFrameTimes, mFrameTimes.size());
+                    ImPlot::PlotLineG(series_name.c_str(), frameTime_getter, (void*)&mFrameTimes, mFrameTimes.size());
                 }
-                else if (series.name == "fps")
+                else if (series_name == "fps")
                 {
-                    ImPlot::PlotLineG(series.name.c_str(), fps_getter, (void*)&mFpsArray, mFpsArray.size());
+                    ImPlot::PlotLineG(series_name.c_str(), fps_getter, (void*)&mFpsArray, mFpsArray.size());
                 }
-                else if (series.name == "cpu_usage")
+                else if (series_name == "cpu_usage")
                 {
                     ImPlot::PlotLineG("sys", cpuUsage_getter, (void*)&mCpuStats, mCpuStats.size() - 1);
                     ImPlot::PlotLineG("app", app_cpuUsage_getter, (void*)&mAppCpuStats, mAppCpuStats.size() - 1);
                 }
-                else if (series.name == "core_usage")
+                else if (series_name == "core_usage")
                 {
                     char label[] = "cpu_0";
                     for (int i = 0; i < mCpuConfigs.size(); i++)
@@ -2006,7 +2083,7 @@ struct PerfDoctorApp : public App
                         ImPlot::PlotLineG(label, cpuUsage_getter, (void*)&mChildCpuStats[i], mChildCpuStats[i].size() - 1);
                     }
                 }
-                else if (series.name == "core_freq")
+                else if (series_name == "core_freq")
                 {
                     char label[] = "cpu_0";
                     for (int i = 0; i < mCpuConfigs.size(); i++)
@@ -2015,7 +2092,7 @@ struct PerfDoctorApp : public App
                         ImPlot::PlotLineG(label, cpuFreq_getter, (void*)&mChildCpuStats[i], mChildCpuStats[i].size());
                     }
                 }
-                else if (series.name == "memory_usage")
+                else if (series_name == "memory_usage")
                 {
                     ImPlot::PlotLineG("total", memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                     ImPlot::PlotLineG("native_heap", nativeheap_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
@@ -2024,7 +2101,7 @@ struct PerfDoctorApp : public App
                     //ImPlot::PlotLineG("private_clean", privateClean_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                     //ImPlot::PlotLineG("private_dirty", privateDirty_memoryUsage_getter, (void*)&mMemoryStats, mMemoryStats.size());
                 }
-                else if (series.name == "temperature")
+                else if (series_name == "temperature")
                 {
                     if (!mTemparatureStatSlot.cpu.empty())
                         ImPlot::PlotLineG("cpu", temp_cpu_getter, (void*)&mTemperatureStats, mTemperatureStats.size());
@@ -2034,10 +2111,34 @@ struct PerfDoctorApp : public App
                         ImPlot::PlotLineG("battery", temp_battery_getter, (void*)&mTemperatureStats, mTemperatureStats.size());
                 }
                 else
-                    ImPlot::PlotLineG(series.name.c_str(), MetricSeries::getter, (void*)&series, series.t_array.size());
+                    ImPlot::PlotLineG(series_name.c_str(), MetricSeries::getter, (void*)&series, series.t_array.size());
                 //ImPlot::PopStyleColor();
                 ImPlot::EndPlot();
             }
+        }
+    }
+
+    void drawLabel()
+    {
+        if (ImPlot::BeginPlot("label"))
+        {
+            bool clamp = false;
+
+            ImVec4 col = ImVec4(1, 0.5f, 0, 0.25f);
+            clamp ? ImPlot::AnnotateClamped(0.25, 0.25, ImVec2(-15, 15), col, "BL") : ImPlot::Annotate(0.25, 0.25, ImVec2(-15, 15), col, "BL");
+            clamp ? ImPlot::AnnotateClamped(0.75, 0.25, ImVec2(15, 15), col, "BR") : ImPlot::Annotate(0.75, 0.25, ImVec2(15, 15), col, "BR");
+            clamp ? ImPlot::AnnotateClamped(0.75, 0.75, ImVec2(15, -15), col, "TR") : ImPlot::Annotate(0.75, 0.75, ImVec2(15, -15), col, "TR");
+            clamp ? ImPlot::AnnotateClamped(0.25, 0.75, ImVec2(-15, -15), col, "TL") : ImPlot::Annotate(0.25, 0.75, ImVec2(-15, -15), col, "TL");
+            clamp ? ImPlot::AnnotateClamped(0.5, 0.5, ImVec2(0, 0), col, "Center") : ImPlot::Annotate(0.5, 0.5, ImVec2(0, 0), col, "Center");
+
+#if 0
+            float bx[] = { 1.2f,1.5f,1.8f };
+            float by[] = { 0.25f, 0.5f, 0.75f };
+            ImPlot::PlotBars("##Bars", bx, by, 3, 0.2);
+            for (int i = 0; i < 3; ++i)
+                ImPlot::Annotate(bx[i], by[i], ImVec2(0, -5), "B[%d]=%.2f", i, by[i]);
+#endif
+            ImPlot::EndPlot();
         }
     }
 
@@ -2130,7 +2231,7 @@ struct PerfDoctorApp : public App
                     sprintf(cmd, "shell dumpsys SurfaceFlinger --latency \\\"%s\\\"", mSurfaceViewName.c_str());
                     results.SurfaceFlinger_latency = executeAdb(cmd);
                 }
-                else
+                else if (SUPPORT_NON_GAME)
                 {
                     sprintf(cmd, "shell dumpsys gfxinfo %s framestats", mPackageName.c_str());
                     results.dumpsys_gfxinfo = executeAdb(cmd);

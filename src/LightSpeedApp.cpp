@@ -139,7 +139,7 @@ void goto_folder(fs::path folder, fs::path selectPath)
         {
             ITEMIDLIST* pidlist;
             SFGAOF aog;
-            SHParseDisplayName(selectPath.wstring().c_str(), NULL, &pidlist, SFGAO_CANCOPY, &aog);//pidlist¾ÍÊÇ×ª»»ÒÔºóµÄshellÂ·¾¶
+            SHParseDisplayName(selectPath.wstring().c_str(), NULL, &pidlist, SFGAO_CANCOPY, &aog);//pidlistï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½Ôºï¿½ï¿½shellÂ·ï¿½ï¿½
 
             LPCITEMIDLIST pidlNull[1] = { pidlist };
             SHOpenFolderAndSelectItems(pidl, 1, pidlNull, 0);
@@ -506,16 +506,16 @@ bool PerfDoctorApp::refreshDeviceDetails()
 
     if (DEVICE_ID == -1) return true;
 
-    storage.metric_storage["fps"].visible = true;
+    storage.metric_storage["fps"].visible = fps_visible;
 
     if (mIsIOSDevices[DEVICE_ID]) return refreshDeviceDetails_ios();
 
-    storage.metric_storage["frame_time"].visible = false;
-    storage.metric_storage["cpu_usage"].visible = true;
-    storage.metric_storage["core_usage"].visible = true;
-    storage.metric_storage["memory_usage"].visible = true;
-    storage.metric_storage["core_freq"].visible = false;
-    storage.metric_storage["temperature"].visible = true;
+    storage.metric_storage["frame_time"].visible = frame_time_visible;
+    storage.metric_storage["cpu_usage"].visible = cpu_usage_visible;
+    storage.metric_storage["core_usage"].visible = core_usage_visible;
+    storage.metric_storage["memory_usage"].visible = memory_usage_visible;
+    storage.metric_storage["core_freq"].visible = core_freq_visible;
+    storage.metric_storage["temperature"].visible = temperature_visible;
 
     if (count(mSerialNames[DEVICE_ID].begin(), mSerialNames[DEVICE_ID].end(), '.') == 3)
     {
@@ -1077,7 +1077,7 @@ bool PerfDoctorApp::updateProfiler(const AdbResults& results)
                         // this frame is an outlier, skip it
                         continue;
 
-                    // »ñÈ¡INTENDED_VSYNC VSYNC FRAME_COMPLETEDÊ±¼ä ÀûÓÃVSYNC¼ÆËãfps jank
+                    // ï¿½ï¿½È¡INTENDED_VSYNC VSYNC FRAME_COMPLETEDÊ±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½VSYNCï¿½ï¿½ï¿½ï¿½fps jank
                     timestamps.push_back({ tokens[1], tokens[2], tokens[13] });
                 }
                 if (line.find(mPackageName) != string::npos)
@@ -1547,7 +1547,18 @@ void PerfDoctorApp::setup()
     mLastUpdateTime = getElapsedSeconds();
 
     getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
-        if (event.getCode() == KeyEvent::KEY_ESCAPE) quit();
+        if (event.getCode() == KeyEvent::KEY_ESCAPE)
+        {
+            fps_visible = storage.metric_storage["fps"].visible;
+            frame_time_visible = storage.metric_storage["frame_time"].visible;
+            cpu_usage_visible = storage.metric_storage["cpu_usage"].visible;
+            core_usage_visible = storage.metric_storage["core_usage"].visible;
+            memory_usage_visible = storage.metric_storage["memory_usage"].visible;
+            core_freq_visible = storage.metric_storage["core_freq"].visible;
+            temperature_visible = storage.metric_storage["temperature"].visible;
+
+            quit();
+        }
     });
 
     getWindow()->getSignalClose().connect([&] {

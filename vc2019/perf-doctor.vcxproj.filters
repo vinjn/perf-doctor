@@ -119,6 +119,9 @@
     <ClCompile Include="..\3rdparty\Cinder-VNM\ui\implot\implot_items.cpp">
       <Filter>Blocks\vnm\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\LightSpeedApp.gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -126,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="..\3rdparty\Cinder-VNM\ui\implot\implot.h">
       <Filter>Blocks\vnm\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\LightSpeedApp.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

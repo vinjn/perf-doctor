@@ -1,6 +1,6 @@
 // Engine\Source\Runtime\Core\Private\Stats\StatsCommand.cpp
 stat None
-pause
+pause|FreezeRendering
 RestartLevel
 
 stat FPS|stat Unit
@@ -28,7 +28,7 @@ r.AllowOcclusionQueries 0|r.AllowOcclusionQueries 1
 r.VisualizeOccludedPrimitives 0|r.VisualizeOccludedPrimitives 1
 Slate.EnableGlobalInvalidation 0|Slate.EnableGlobalInvalidation 1
 
-show DynamicShadows|Decals|Fog
+show DynamicShadows|show CapsuleShadows|show Decals|show Fog
 show InstancedFoliage|show InstancedStaticMeshes
 show SkeletalMeshes|show StaticMeshes|show Translucency
 show Landscape
@@ -39,10 +39,9 @@ show Bounds|show Bones|showdebug|showdebug vehicle
 //show CameraFrustums
 show Collision|show CollisionPawn|show CollisionVisibility
 //show Materials
-show OcclusionMeshes
+show OcclusionMeshes|show HISMCClusterTree
 //show PrecomputedVisibility
 show SkyLighting
-show HISMCClusterTree
 
 // Engine\Source\Runtime\Engine\Classes\GameFramework\CheatManager.h
 LogLoc|BugItGo
@@ -54,8 +53,8 @@ ToggleDebugCamera
 stat Memory|stat MemoryPlatform
 stat RHI|stat TextureGroup|stat RenderTargetPool|stat Shaders
 stat MapBuildData|stat SceneMemory|stat LoadTime
-stat MemoryAllocator
-stat MemoryStaticMesh
+stat MemoryAllocator|stat MemoryStaticMesh
+stat Collision|stat Net
 
 stat TaskGraphTasks
 stat PlayerController

@@ -1,5 +1,6 @@
 // Engine\Source\Runtime\Core\Private\Stats\StatsCommand.cpp
 stat None
+t.MaxFPS 60
 pause|FreezeRendering
 RestartLevel
 

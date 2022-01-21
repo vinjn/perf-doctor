@@ -48,6 +48,7 @@ LogLoc|BugItGo
 Fly|Walk|Ghost|God
 ToggleDebugCamera
 // DestroyTarget
+DisableAllScreenMessages
 
 // Engine\Source\Runtime\Core\Public\Stats\Stats2.h
 stat Memory|stat MemoryPlatform

@@ -1480,17 +1480,13 @@ void PerfDoctorApp::setup()
                 if (asyncCmd.find("perfetto") != string::npos)
                 {
                     auto cmds = split(asyncCmd, " ");
-                    dispatchAsync([this, cmds] {
-                        launchWebBrowser(Url("https://ui.perfetto.dev/#!/", true));
-                        goto_folder(getAppPath(), getAppPath() / (cmds[1] + ".perfetto"));
-                    });
+                    launchWebBrowser(Url("https://ui.perfetto.dev/#!/", true));
+                    goto_folder(getAppPath(), getAppPath() / (cmds[1] + ".perfetto"));
                 }
                 else if (asyncCmd.find("screenshot") != string::npos)
                 {
                     auto cmds = split(asyncCmd, " ");
-                    dispatchAsync([this, cmds] {
-                        launchWebBrowser(Url(cmds[1] + ".png", true));
-                    });
+                    launchWebBrowser(Url(cmds[1] + ".png", true));
                 }
             }
 
@@ -1563,7 +1559,7 @@ void PerfDoctorApp::setup()
 
     mLastUpdateTime = getElapsedSeconds();
 
-    getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
+    getWindow()->getSignalKeyDown().connect([&](KeyEvent& event) {
         if (event.getCode() == KeyEvent::KEY_ESCAPE)
         {
             fps_visible = storage.metric_storage["fps"].visible;
@@ -1576,6 +1572,11 @@ void PerfDoctorApp::setup()
 
             quit();
         }
+    });
+
+    getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
+        if (event.getCode() == KeyEvent::KEY_SPACE) screenshot();
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_p) capturePerfetto();
     });
 
     getWindow()->getSignalClose().connect([&] {

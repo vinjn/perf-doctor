@@ -787,6 +787,16 @@ bool PerfDoctorApp::capturePerfetto()
     return true;
 }
 
+bool PerfDoctorApp::screenshot()
+{
+    auto ts = getTimestampForFilename();
+    string name = mPackageName + "-" + ts;
+
+    mAsyncCommands.pushFront((getAppPath() / "screenshot.bat").string() + " " + name);
+
+    return true;
+}
+
 void PerfDoctorApp::exportGpuTrace()
 {
     auto ts = getTimestampForFilename();
@@ -1473,6 +1483,13 @@ void PerfDoctorApp::setup()
                     dispatchAsync([this, cmds] {
                         launchWebBrowser(Url("https://ui.perfetto.dev/#!/", true));
                         goto_folder(getAppPath(), getAppPath() / (cmds[1] + ".perfetto"));
+                    });
+                }
+                else if (asyncCmd.find("screenshot") != string::npos)
+                {
+                    auto cmds = split(asyncCmd, " ");
+                    dispatchAsync([this, cmds] {
+                        launchWebBrowser(Url(cmds[1] + ".png", true));
                     });
                 }
             }

@@ -261,14 +261,25 @@ void PerfDoctorApp::drawDeviceTab()
                 stopApp(mAppNames[mAppId]);
             }
 
-            ImGui::Unindent();
-
             {
                 if (ImGui::Button("Trim Memory")) trimMemory("RUNNING_MODERATE");
                 ImGui::SameLine();
                 if (ImGui::Button("Low")) trimMemory("RUNNING_LOW");
                 ImGui::SameLine();
                 if (ImGui::Button("Critical")) trimMemory("RUNNING_CRITICAL");
+            }
+            
+            ImGui::Unindent();
+
+            if (ImGui::Button("Screenshot"))
+            {
+                screenshot();
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Capture Perfetto"))
+            {
+                capturePerfetto();
             }
 
             if (mIsProfiling)
@@ -279,11 +290,6 @@ void PerfDoctorApp::drawDeviceTab()
                 }
 
                 ImGui::SameLine();
-
-                if (ImGui::Button("Capture Perfetto"))
-                {
-                    capturePerfetto();
-                }
 
 #ifdef MIX_DEVICE_ENABLED
                 if (ImGui::Button("Start GpuTrace"))

@@ -1,15 +1,15 @@
 // Engine\Source\Runtime\Core\Private\Stats\StatsCommand.cpp
 stat None
 t.MaxFPS 60
-pause|FreezeRendering
-RestartLevel
+pause|RestartLevel
+ToggleDebugCamera|FreezeRendering
 
+dumpticks
 stat FPS|stat Unit
 stat Quick|stat UObjects
 stat Game|stat Engine
 stat Anim|stat Slate|stat Particles
 stat slow -ms=1 -maxdepth=6
-dumpticks
 stat dumpframe -ms=0.1
 
 ProfileGPU|memreport|memreport -full
@@ -47,7 +47,6 @@ show SkyLighting
 // Engine\Source\Runtime\Engine\Classes\GameFramework\CheatManager.h
 LogLoc|BugItGo
 Fly|Walk|Ghost|God
-ToggleDebugCamera
 // DestroyTarget
 DisableAllScreenMessages
 

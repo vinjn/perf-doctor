@@ -1,0 +1,71 @@
+buffers: {
+    size_kb: 63488
+    fill_policy: DISCARD
+}
+buffers: {
+    size_kb: 2048
+    fill_policy: DISCARD
+}
+data_sources: {
+    config {
+        name: "linux.process_stats"
+        target_buffer: 1
+        process_stats_config {
+            scan_all_processes_on_start: true
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "linux.ftrace"
+        ftrace_config {
+            ftrace_events: "gfx"
+            ftrace_events: "sched/sched_switch"
+            ftrace_events: "power/suspend_resume"
+            ftrace_events: "sched/sched_wakeup"
+            ftrace_events: "sched/sched_wakeup_new"
+            ftrace_events: "sched/sched_waking"
+            ftrace_events: "power/cpu_frequency"
+            ftrace_events: "power/cpu_idle"
+            ftrace_events: "power/gpu_frequency"
+            ftrace_events: "sched/sched_process_exit"
+            ftrace_events: "sched/sched_process_free"
+            ftrace_events: "task/task_newtask"
+            ftrace_events: "task/task_rename"
+            ftrace_events: "ftrace/print"
+            atrace_categories: "gfx"
+            atrace_categories: "power"
+            atrace_apps: "ATRACE_APP_NAME"
+        }
+    }
+}
+data_sources: {
+  config {
+    name: "android.surfaceflinger.frame"
+  }
+}
+data_sources: {
+  config {
+    name: "gpu.counters"
+    target_buffer: 0
+    legacy_config: "counter_period_ns: 1000000\ncounter_ids:3\ncounter_ids:4\ncounter_ids:260\ncounter_ids:261\ncounter_ids:262\ncounter_ids:7\ncounter_ids:263\ncounter_ids:264\ncounter_ids:265\ncounter_ids:266\ncounter_ids:267\ncounter_ids:268\ncounter_ids:269\ncounter_ids:270\ncounter_ids:15\ncounter_ids:271\ncounter_ids:276\ncounter_ids:277\ncounter_ids:278\ncounter_ids:30\ncounter_ids:32\ncounter_ids:291\ncounter_ids:292\ncounter_ids:37\ncounter_ids:293\ncounter_ids:294\ncounter_ids:297\ncounter_ids:298\ncounter_ids:299\ncounter_ids:300\ncounter_ids:301\ncounter_ids:302\ncounter_ids:308\ncounter_ids:309\ncounter_ids:311\ncounter_ids:312\ncounter_ids:313\ncounter_ids:314\ncounter_ids:315\ncounter_ids:86\ncounter_ids:87\ncounter_ids:88\ncounter_ids:93\ncounter_ids:94\ncounter_ids:95\ncounter_ids:351\ncounter_ids:96\ncounter_ids:352\ncounter_ids:97\ncounter_ids:353\ncounter_ids:98\ncounter_ids:354\ncounter_ids:355\ncounter_ids:356\ncounter_ids:104\ncounter_ids:108\ncounter_ids:110\ncounter_ids:111\ncounter_ids:117\ncounter_ids:125\nset_id:0\n"
+  }
+}
+data_sources: {
+  config {
+    name: "gpu.renderstages"
+  }
+}
+data_sources: {
+  config {
+    name: "VulkanAPI"
+  }
+}
+data_sources: {
+  config {
+    name: "VulkanCPUTiming"
+    legacy_config: "VkDevice:VkPhysicalDevice:VkInstance:VkQueue"
+  }
+}
+
+duration_ms: 1000

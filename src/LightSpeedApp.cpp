@@ -247,6 +247,17 @@ vector<string> PerfDoctorApp::executeIdb(string cmd, bool async, bool oneDeviceO
 #endif
 }
 
+void PerfDoctorApp::executeUnrealCmd(const string& cmd)
+{
+    char str[256];
+    sprintf(str, "shell am broadcast -a android.intent.action.RUN -e cmd '%s'", cmd.c_str());
+    executeAdb(str);
+    if (cmd.find("memreport") != string::npos)
+        getMemReport();
+    if (cmd.find("dumpticks") != string::npos)
+        getDumpTicks();
+}
+
 vector<string> PerfDoctorApp::executeAdb(string cmd, bool oneDeviceOnly)
 {
     static bool init = true;
@@ -1635,7 +1646,10 @@ void PerfDoctorApp::setup()
     getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
         if (event.getCode() == KeyEvent::KEY_SPACE) screenshot();
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_p) capturePerfetto();
-        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_d) getDumpTicks();
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_d)
+        {
+            executeUnrealCmd("dumpticks");
+        }
     });
 
     getWindow()->getSignalClose().connect([&] {

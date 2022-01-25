@@ -236,6 +236,7 @@ struct PerfDoctorApp : public App
     vector<string> executeIdb(string cmd, bool async = false, bool oneDeviceOnly = true);
 
     vector<string> executeAdb(string cmd, bool oneDeviceOnly = true);
+    void executeUnrealCmd(const string& cmd);
 
     int mAppId = -1;
     vector<string> mSerialNames;

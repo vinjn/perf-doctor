@@ -143,12 +143,7 @@ void PerfDoctorApp::drawLeftSidePanel()
             ImGui::SameLine();
             if (ImGui::Button("Apply"))
             {
-                sprintf(str, "shell am broadcast -a android.intent.action.RUN -e cmd '%s'", UE_CMD.c_str());
-                executeAdb(str);
-                if (UE_CMD.find("memreport") != string::npos)
-                    getMemReport();
-                if (UE_CMD.find("dumpticks") != string::npos)
-                    getDumpTicks();
+                executeUnrealCmd(UE_CMD);
             }
             ImGui::NewLine();
 
@@ -172,17 +167,7 @@ void PerfDoctorApp::drawLeftSidePanel()
                     if (ImGui::Button(token.c_str()))
                     {
                         UE_CMD = token;
-                        sprintf(str, "shell am broadcast -a android.intent.action.RUN -e cmd '%s'", token.c_str());
-                        executeAdb(str);
-
-                        if (token.find("memreport") != string::npos)
-                        {
-                            getMemReport();
-                        }
-                        else if (token.find("dumpticks") != string::npos)
-                        {
-                            getDumpTicks();
-                        }
+                        executeUnrealCmd(UE_CMD);
                     }
                 }
             }

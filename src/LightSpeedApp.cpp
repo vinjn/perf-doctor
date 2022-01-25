@@ -1635,6 +1635,7 @@ void PerfDoctorApp::setup()
     getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
         if (event.getCode() == KeyEvent::KEY_SPACE) screenshot();
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_p) capturePerfetto();
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_d) getDumpTicks();
     });
 
     getWindow()->getSignalClose().connect([&] {

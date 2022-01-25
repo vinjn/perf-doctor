@@ -213,9 +213,12 @@ struct AdbResults
 struct TickFunction
 {
     string type;
-    string object;
     string status;
     string tick_group;
+
+    string actor;
+    string component;
+    string level;
     //vector<string> prerequesities;
 };
 

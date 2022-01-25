@@ -1436,12 +1436,35 @@ void PerfDoctorApp::getDumpTicks()
                     line = line.substr(30);
                     auto tokens = split(line, ",");
                     if (tokens.size() != 4) continue;
-                    TickFunction tick = { tokens[0], "", tokens[1].substr(1), tokens[2].substr(23) };
+                    TickFunction tick = { tokens[0], tokens[1].substr(1), tokens[2].substr(23)};
                     tokens = split(tick.type, ' ');
                     if (tokens.size() == 2)
                     {
+                        // has object field
                         tick.type = tokens[0];
-                        tick.object = tokens[1];
+                        tick.actor = tokens[1];
+                        tokens = split(tick.actor, ':');
+                        if (tokens.size() > 2)
+                        {
+                            // separate level and actor
+                            tick.level = tokens[0];
+                            auto tk = tokens[1];
+                            if (tk.find("PersistentLevel") != string::npos)
+                                tk = tk.substr(sizeof("PersistentLevel") + 1);
+
+                            if (tk.find("TickActor") == string::npos)
+                            {
+                                // separate actor and component
+                                int first_dot = tk.find_first_of('.');
+                                tick.actor = tk.substr(0, first_dot);
+                                tick.component = tk.substr(first_dot);
+                            }
+                            else
+                            {
+                                tick.actor = tk;
+                            }
+                        }
+
                     }
                     mTickFunctions.push_back(tick);
                 }
@@ -1455,10 +1478,10 @@ void PerfDoctorApp::getDumpTicks()
                 ofstream ofs(getAppPath() / csv_name);
                 if (ofs.is_open())
                 {
-                    ofs << "Type,Object,Status,TickGroup" << endl;
+                    ofs << "Type,Level,Actor,Component,Status,TickGroup" << endl;
                     for (const auto& item : mTickFunctions)
                     {
-                        ofs << item.type << "," << item.object << "," << item.status << "," << item.tick_group << endl;
+                        ofs << item.type << "," << item.level << "," << item.actor << "," << item.component << "," << item.status << "," << item.tick_group << endl;
                     }
                 }
                 ofs.close();

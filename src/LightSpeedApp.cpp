@@ -1,5 +1,7 @@
 #include "LightSpeedApp.h"
 #include "MiniConfig.h"
+#include "Cinder/Timeline.h"
+#include "cinder/Json.h"
 
 // TODO: so ugly
 float global_min_t = 0;
@@ -10,6 +12,15 @@ uint64_t firstCpuStatTimestamp = 0;
 int pid;
 vector<pair<uint64_t, CpuStat>> mCpuStats;
 vector<CpuConfig> mCpuConfigs;
+
+AppCpuStat::AppCpuStat(const string& line)
+{
+    auto tokens = split(line, ' ');
+    utime = fromString<long int>(tokens[14]);
+    stime = fromString<long int>(tokens[15]);
+    cutime = fromString<long int>(tokens[16]);
+    cstime = fromString<long int>(tokens[17]);
+}
 
 string getTimestampForFilename()
 {
@@ -199,7 +210,7 @@ LONG CALLBACK unhandled_handler(EXCEPTION_POINTERS* e)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-int runCmd(const string& cmd, std::string& outOutput)
+int runCmd(const string& cmd, std::string& outOutput, bool waitForCompletion)
 {
     CI_LOG_W(cmd);
 
@@ -250,23 +261,26 @@ int runCmd(const string& cmd, std::string& outOutput)
     CloseHandle(g_hChildStd_ERR_Wr);
     CloseHandle(g_hChildStd_OUT_Wr);
 
-    // read output
-#define BUFSIZE 4096
-    DWORD dwRead;
-    CHAR chBuf[BUFSIZE];
-    bool bSuccess2 = FALSE;
-    for (;;) { // read stdout
-        bSuccess2 = ReadFile(g_hChildStd_OUT_Rd, chBuf, BUFSIZE, &dwRead, NULL);
-        if (!bSuccess2 || dwRead == 0) break;
-        std::string s(chBuf, dwRead);
-        outOutput += s;
-    }
-    dwRead = 0;
-    for (;;) { // read stderr
-        bSuccess2 = ReadFile(g_hChildStd_ERR_Rd, chBuf, BUFSIZE, &dwRead, NULL);
-        if (!bSuccess2 || dwRead == 0) break;
-        std::string s(chBuf, dwRead);
-        outOutput += s;
+    if (waitForCompletion)
+    {
+        // read output
+    #define BUFSIZE 4096
+        DWORD dwRead;
+        CHAR chBuf[BUFSIZE];
+        bool bSuccess2 = FALSE;
+        for (;;) { // read stdout
+            bSuccess2 = ReadFile(g_hChildStd_OUT_Rd, chBuf, BUFSIZE, &dwRead, NULL);
+            if (!bSuccess2 || dwRead == 0) break;
+            std::string s(chBuf, dwRead);
+            outOutput += s;
+        }
+        dwRead = 0;
+        for (;;) { // read stderr
+            bSuccess2 = ReadFile(g_hChildStd_ERR_Rd, chBuf, BUFSIZE, &dwRead, NULL);
+            if (!bSuccess2 || dwRead == 0) break;
+            std::string s(chBuf, dwRead);
+            outOutput += s;
+        }
     }
 
     CloseHandle(g_hChildStd_OUT_Rd);
@@ -781,9 +795,8 @@ bool PerfDoctorApp::capturePerfetto()
 {
     auto ts = getTimestampForFilename();
     string name = mPackageName + "-" + ts;
-
     mAsyncCommands.pushFront((getAppPath() / "capture-perfetto.bat").string() + " " + name);
-
+    mAsyncCommands.pushFront((getAppPath() / "screenshot.bat").string() + " " + name + " hide_screenshot");
     return true;
 }
 
@@ -791,9 +804,7 @@ bool PerfDoctorApp::screenshot()
 {
     auto ts = getTimestampForFilename();
     string name = mPackageName + "-" + ts;
-
     mAsyncCommands.pushFront((getAppPath() / "screenshot.bat").string() + " " + name);
-
     return true;
 }
 
@@ -1412,27 +1423,30 @@ void PerfDoctorApp::updateMetricsData()
 
 void PerfDoctorApp::getMemReport()
 {
-    char str[256];
-    sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports", APP_FOLDER.c_str(), APP_FOLDER.c_str());
-    auto lines = executeAdb(str);
-    if (lines.size() > 1)
-    {
-        auto folder = lines[lines.size() - 1];;
-        auto tokens = split(folder, ' ');
-        folder = tokens[tokens.size() - 1];
-
-        sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str());
-        lines = executeAdb(str);
+    auto fn = [&]() {
+        char str[256];
+        sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports", APP_FOLDER.c_str(), APP_FOLDER.c_str());
+        auto lines = executeAdb(str);
         if (lines.size() > 1)
         {
-            auto lastLine = lines[lines.size() - 1];
-            tokens = split(lastLine, ' ');
-            auto lastFile = tokens[tokens.size() - 1];
-            sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str(), lastFile.c_str());
-            executeAdb(str);
-            launchWebBrowser(Url(lastFile, true));
+            auto folder = lines[lines.size() - 1];;
+            auto tokens = split(folder, ' ');
+            folder = tokens[tokens.size() - 1];
+
+            sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str());
+            lines = executeAdb(str);
+            if (lines.size() > 1)
+            {
+                auto lastLine = lines[lines.size() - 1];
+                tokens = split(lastLine, ' ');
+                auto lastFile = tokens[tokens.size() - 1];
+                sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str(), lastFile.c_str());
+                executeAdb(str);
+                launchWebBrowser(Url(lastFile, true));
+            }
         }
-    }
+    };
+    timeline().add(fn, timeline().getCurrentTime() + 1);
 }
 
 extern void createConfigImgui(WindowRef window = getWindow(), bool autoDraw = true, bool autoRender = true);
@@ -1458,12 +1472,14 @@ void PerfDoctorApp::setup()
 
     log::makeLogger<log::LoggerFileRotating>(fs::path(), "app.%Y.%m.%d.log");
     createConfigImgui(getWindow(), false);
+
     implotCtx = ImPlot::CreateContext();
     ImPlot::SetColormap(ImPlotColormap_Cool);
 
     ImPlot::GetStyle().AntiAliasedLines = true;
     ImPlot::GetStyle().Marker = ImPlotMarker_Circle;
     ImPlot::GetStyle().MarkerSize = 2;
+
 
     //ImPlot::SetNextMarkerStyle(ImPlotMarker_Square, 5, ImVec4(1, 0.5f, 0, 0.25f));
 
@@ -1483,7 +1499,7 @@ void PerfDoctorApp::setup()
                     launchWebBrowser(Url("https://ui.perfetto.dev/#!/", true));
                     goto_folder(getAppPath(), getAppPath() / (cmds[1] + ".perfetto"));
                 }
-                else if (asyncCmd.find("screenshot") != string::npos)
+                else if (asyncCmd.find("screenshot") != string::npos && asyncCmd.find("hide_screenshot") == string::npos)
                 {
                     auto cmds = split(asyncCmd, " ");
                     launchWebBrowser(Url(cmds[1] + ".png", true));
@@ -1594,6 +1610,8 @@ void PerfDoctorApp::setup()
         bool open = false;
         ImPlot::ShowDemoWindow(&open);
 #endif
+        //ImGui::CaptureKeyboardFromApp(false);
+
         if (ImGui::Begin("Devices", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
             drawLeftSidePanel();

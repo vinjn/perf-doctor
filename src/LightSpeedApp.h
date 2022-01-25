@@ -5,7 +5,6 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Log.h"
 #include "cinder/ConcurrentCircularBuffer.h"
-#include "cinder/Json.h"
 
 #ifdef MIX_DEVICE_ENABLED
 #include "MixDevice.h"
@@ -120,14 +119,7 @@ struct AppCpuStat
     long int utime, stime;
     long int cutime, cstime;
 
-    AppCpuStat(const string& line)
-    {
-        auto tokens = split(line, ' ');
-        utime = fromString<long int>(tokens[14]);
-        stime = fromString<long int>(tokens[15]);
-        cutime = fromString<long int>(tokens[16]);
-        cstime = fromString<long int>(tokens[17]);
-    }
+    AppCpuStat(const string& line);
 
     long int getActiveTime() const
     {
@@ -203,7 +195,7 @@ extern int pid;
 extern vector<pair<uint64_t, CpuStat>> mCpuStats;
 extern vector<CpuConfig> mCpuConfigs;
 
-int runCmd(const string& cmd, std::string& outOutput);
+int runCmd(const string& cmd, std::string& outOutput, bool waitForCompletion = true);
 
 struct AdbResults
 {

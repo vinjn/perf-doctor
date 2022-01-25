@@ -1444,25 +1444,19 @@ void PerfDoctorApp::getDumpTicks()
                         tick.type = tokens[0];
                         tick.actor = tokens[1];
                         tokens = split(tick.actor, ':');
-                        if (tokens.size() > 2)
+                        if (tokens.size() >= 2)
                         {
                             // separate level and actor
                             tick.level = tokens[0];
                             auto tk = tokens[1];
                             if (tk.find("PersistentLevel") != string::npos)
-                                tk = tk.substr(sizeof("PersistentLevel") + 1);
+                                tk = tk.substr(sizeof("PersistentLevel"));
 
-                            if (tk.find("TickActor") == string::npos)
-                            {
-                                // separate actor and component
-                                int first_dot = tk.find_first_of('.');
-                                tick.actor = tk.substr(0, first_dot);
-                                tick.component = tk.substr(first_dot);
-                            }
-                            else
-                            {
-                                tick.actor = tk;
-                            }
+                            tokens = split(tk, "[].");
+                            if (tokens.size() > 2)
+                                tick.component = tokens[1];
+                            if (tokens.size() > 1)
+                                tick.actor = tokens[0];
                         }
 
                     }

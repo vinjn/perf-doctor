@@ -1348,6 +1348,13 @@ void PerfDoctorApp::updateMetricsData()
     }
 }
 
+void PerfDoctorApp::getUnrealLog()
+{
+    char str[256];
+    sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Logs/%s.log", APP_FOLDER.c_str(), APP_FOLDER.c_str(), APP_FOLDER.c_str());
+    executeAdb(str);
+}
+
 void PerfDoctorApp::getMemReport()
 {
     auto fn = [&]() {
@@ -1372,6 +1379,103 @@ void PerfDoctorApp::getMemReport()
                 launchWebBrowser(Url(lastFile, true));
             }
         }
+    };
+    timeline().add(fn, timeline().getCurrentTime() + 1);
+}
+
+void PerfDoctorApp::getDumpTicks()
+{
+    auto fn = [&]() {
+        mTickFunctions.clear();
+
+        getUnrealLog();
+
+        int line_startDumpTicks = 0; // track the latest one
+        int line_endDumpTicks = 0; // track the latest one
+        std::ifstream ifs(APP_FOLDER + ".log");
+        if (ifs.is_open())
+        {
+            std::string line;
+
+            // first pass
+            int lineNumber = 0;
+            while (std::getline(ifs, line))
+            {
+                if (line.find("Tick Functions (All)") != string::npos)
+                {
+                    line_startDumpTicks = lineNumber;
+                }
+                if (line.find("Total registered tick") != string::npos)
+                {
+                    line_endDumpTicks = lineNumber;
+                }
+
+                lineNumber++;
+            }
+            CI_ASSERT(line_endDumpTicks > line_startDumpTicks);
+
+            // second pass
+            lineNumber = 0;
+            ifs.clear();                 // clear fail and eof bits
+            ifs.seekg(0, std::ios::beg); // back to the start!
+            while (std::getline(ifs, line))
+            {
+                if (lineNumber > line_startDumpTicks && lineNumber < line_endDumpTicks)
+                {
+                    line = line.substr(30);
+                    auto tokens = split(line, ",");
+                    if (tokens.size() != 4) continue;
+                    TickFunction tick = { tokens[0], "", tokens[1].substr(1), tokens[2].substr(23) };
+                    tokens = split(tick.type, ' ');
+                    if (tokens.size() == 2)
+                    {
+                        tick.type = tokens[0];
+                        tick.object = tokens[1];
+                    }
+                    mTickFunctions.push_back(tick);
+                }
+                lineNumber++;
+            }
+
+            if (!mTickFunctions.empty())
+            {
+                auto ts = getTimestampForFilename();
+                string csv_name = APP_FOLDER + "-ticks-" + ts + ".csv";
+                ofstream ofs(getAppPath() / csv_name);
+                if (ofs.is_open())
+                {
+                    ofs << "Type,Object,Status,TickGroup" << endl;
+                    for (const auto& item : mTickFunctions)
+                    {
+                        ofs << item.type << "," << item.object << "," << item.status << "," << item.tick_group << endl;
+                    }
+                }
+                ofs.close();
+                launchWebBrowser(Url(csv_name, true));
+            }
+        }
+
+        //char str[256];
+        //sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports", APP_FOLDER.c_str(), APP_FOLDER.c_str());
+        //auto lines = executeAdb(str);
+        //if (lines.size() > 1)
+        //{
+        //    auto folder = lines[lines.size() - 1];;
+        //    auto tokens = split(folder, ' ');
+        //    folder = tokens[tokens.size() - 1];
+
+        //    sprintf(str, "shell ls -l /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str());
+        //    lines = executeAdb(str);
+        //    if (lines.size() > 1)
+        //    {
+        //        auto lastLine = lines[lines.size() - 1];
+        //        tokens = split(lastLine, ' ');
+        //        auto lastFile = tokens[tokens.size() - 1];
+        //        sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Profiling/MemReports/%s/%s", APP_FOLDER.c_str(), APP_FOLDER.c_str(), folder.c_str(), lastFile.c_str());
+        //        executeAdb(str);
+        //        launchWebBrowser(Url(lastFile, true));
+        //    }
+        //}
     };
     timeline().add(fn, timeline().getCurrentTime() + 1);
 }

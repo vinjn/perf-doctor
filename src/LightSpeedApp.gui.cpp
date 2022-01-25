@@ -132,16 +132,11 @@ void PerfDoctorApp::drawLeftSidePanel()
             char str[256];
 
             ImGui::InputText("APP_FOLDER", &APP_FOLDER);
+            ImGui::SameLine();
             if (ImGui::Button("Get log"))
             {
-                sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Logs/%s.log", APP_FOLDER.c_str(), APP_FOLDER.c_str(), APP_FOLDER.c_str());
-                executeAdb(str);
+                getUnrealLog();
                 launchWebBrowser(Url(APP_FOLDER + ".log", true));
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Get memreport"))
-            {
-                getMemReport();
             }
 
             ImGui::InputText(" ", &UE_CMD);
@@ -152,6 +147,8 @@ void PerfDoctorApp::drawLeftSidePanel()
                 executeAdb(str);
                 if (UE_CMD.find("memreport") != string::npos)
                     getMemReport();
+                if (UE_CMD.find("dumpticks") != string::npos)
+                    getDumpTicks();
             }
             ImGui::NewLine();
 
@@ -181,6 +178,10 @@ void PerfDoctorApp::drawLeftSidePanel()
                         if (token.find("memreport") != string::npos)
                         {
                             getMemReport();
+                        }
+                        else if (token.find("dumpticks") != string::npos)
+                        {
+                            getDumpTicks();
                         }
                     }
                 }

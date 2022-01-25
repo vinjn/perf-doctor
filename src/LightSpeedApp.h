@@ -210,6 +210,15 @@ struct AdbResults
     TemperatureStat temperature;
 };
 
+struct TickFunction
+{
+    string type;
+    string object;
+    string status;
+    string tick_group;
+    //vector<string> prerequesities;
+};
+
 struct PerfDoctorApp : public App
 {
     DataStorage storage;
@@ -249,6 +258,8 @@ struct PerfDoctorApp : public App
     vector<pair<uint64_t, TemperatureStat>> mTemperatureStats;
 
     vector<string> mUnrealCmds;
+
+    vector<TickFunction> mTickFunctions;
     
     uint64_t mLastSnapshotTs = 0;
     uint64_t mLastSnapshotIdx = 0;
@@ -325,7 +336,9 @@ struct PerfDoctorApp : public App
     void drawPerfPanel();
     void drawLabel();
 
+    void getUnrealLog();
     void getMemReport();
+    void getDumpTicks();
 
     void setup() override;
 };

@@ -212,11 +212,11 @@ struct AdbResults
 
 struct TickFunction
 {
-    string type;
+    string actor;
     string status;
     string tick_group;
 
-    string actor;
+    string type;
     string component;
     string level;
     //vector<string> prerequesities;

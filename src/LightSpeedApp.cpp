@@ -1437,7 +1437,7 @@ void PerfDoctorApp::getDumpTicks()
                     auto tokens = split(line, ",");
                     if (tokens.size() != 4) continue;
                     TickFunction tick = { tokens[0], tokens[1].substr(1), tokens[2].substr(23)};
-                    tokens = split(tick.type, ' ');
+                    tokens = split(tick.actor, ' ');
                     if (tokens.size() == 2)
                     {
                         // has object field
@@ -1472,10 +1472,15 @@ void PerfDoctorApp::getDumpTicks()
                 ofstream ofs(getAppPath() / csv_name);
                 if (ofs.is_open())
                 {
-                    ofs << "Type,Level,Actor,Component,Status,TickGroup" << endl;
+                    ofs << "Actor,Component,Type,Level,Status,TickGroup" << endl;
                     for (const auto& item : mTickFunctions)
                     {
-                        ofs << item.type << "," << item.level << "," << item.actor << "," << item.component << "," << item.status << "," << item.tick_group << endl;
+                        ofs << item.actor << ","
+                            << item.component << ","
+                            << item.type << ","
+                            << item.level << "," 
+                            << item.status << "," 
+                            << item.tick_group << endl;
                     }
                 }
                 ofs.close();

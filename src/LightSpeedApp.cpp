@@ -1549,7 +1549,7 @@ void PerfDoctorApp::setup()
     createConfigImgui(getWindow(), false);
 
     implotCtx = ImPlot::CreateContext();
-    ImPlot::SetColormap(ImPlotColormap_Cool);
+    ImPlot::PushColormap(ImPlotColormap_Cool);
 
     ImPlot::GetStyle().AntiAliasedLines = true;
     ImPlot::GetStyle().Marker = ImPlotMarker_Circle;

@@ -27,6 +27,9 @@
     <Filter Include="Blocks\vnm\ui">
       <UniqueIdentifier>{197d083d-5491-4fbf-b601-28c8a01f2cc8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\vnm\imgui">
+      <UniqueIdentifier>{3ce9f7bf-b552-495c-af2f-79e330785515}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\LightSpeedApp.cpp">
@@ -122,6 +125,24 @@
     <ClCompile Include="..\src\LightSpeedApp.gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui.cpp">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_demo.cpp">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_draw.cpp">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_tables.cpp">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_widgets.cpp">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\CinderImGui.cpp">
+      <Filter>Blocks\vnm\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -132,6 +153,27 @@
     </ClInclude>
     <ClInclude Include="..\src\LightSpeedApp.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imconfig.h">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui.h">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_internal.h">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imstb_rectpack.h">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imstb_textedit.h">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imstb_truetype.h">
+      <Filter>Blocks\vnm\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\include\CinderImGui.h">
+      <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

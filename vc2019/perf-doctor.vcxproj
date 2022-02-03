@@ -72,7 +72,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\3rdparty\Cinder-VNM\include;..\3rdparty\Cinder-VNM\ui;..\3rdparty\Cinder-VNM\ui\implot;..\3rdparty;..\..\Cinder\include\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\..\Cinder\include;..\3rdparty\Cinder-VNM\include;..\3rdparty\Cinder-VNM\ui;..\3rdparty\Cinder-VNM\ui\implot;..\3rdparty;..\3rdparty\Cinder-VNM\ui\imgui</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -98,7 +98,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXD|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\3rdparty\Cinder-VNM\include;..\3rdparty\Cinder-VNM\ui;..\3rdparty\Cinder-VNM\ui\implot;..\3rdparty;..\..\Cinder\include\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\..\Cinder\include;..\3rdparty\Cinder-VNM\include;..\3rdparty\Cinder-VNM\ui;..\3rdparty\Cinder-VNM\ui\implot;..\3rdparty;..\3rdparty\Cinder-VNM\ui\imgui</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MIX_DEVICE_ENABLED;WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -125,7 +125,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\3rdparty\Cinder-VNM\include;..\3rdparty\Cinder-VNM\ui;..\3rdparty\Cinder-VNM\ui\implot;..\3rdparty;..\..\Cinder\include\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\..\Cinder\include;..\3rdparty\Cinder-VNM\include;..\3rdparty\Cinder-VNM\ui;..\3rdparty\Cinder-VNM\ui\implot;..\3rdparty;..\3rdparty\Cinder-VNM\ui\imgui</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
@@ -158,6 +158,13 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClInclude Include="..\3rdparty\Cinder-VNM\include\CinderImGui.h" />
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imconfig.h" />
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui.h" />
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_internal.h" />
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\3rdparty\Cinder-VNM\ui\imgui\imstb_truetype.h" />
     <ClInclude Include="..\3rdparty\Cinder-VNM\ui\implot\implot.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
@@ -185,6 +192,12 @@
     <ClInclude Include="..\src\LightSpeedApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\CinderImGui.cpp" />
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui.cpp" />
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\3rdparty\Cinder-VNM\ui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\3rdparty\Cinder-VNM\ui\implot\implot.cpp" />
     <ClCompile Include="..\3rdparty\Cinder-VNM\ui\implot\implot_demo.cpp" />
     <ClCompile Include="..\3rdparty\Cinder-VNM\ui\implot\implot_items.cpp" />

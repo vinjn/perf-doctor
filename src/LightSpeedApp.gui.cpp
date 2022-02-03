@@ -415,17 +415,16 @@ void PerfDoctorApp::drawPerfPanel()
         {
             s_drawLabel = false;
             float height = 1;
-            //ImPlot::SetNextPlotTicksX(global_min_t, global_max_t, PANEL_TICK_T);
-            ImPlot::SetNextPlotLimitsX(global_min_t, global_max_t, ImGuiCond_Always);
-            //ImPlot::SetNextPlotTicksY(series.min_x, series.max_x, PANEL_TICK_X);
-            ImPlot::SetNextPlotLimitsY(0, height, ImGuiCond_Always);
+            ImPlot::SetNextAxisLimits(ImAxis_X1, global_min_t, global_max_t, ImGuiCond_Always);
+            ImPlot::SetNextAxisLimits(ImAxis_Y1, 0, height, ImGuiCond_Always);
             auto color = ImVec4(0.3f, 0.3f, 0.3f, 0.5f);
             ImPlot::PushStyleColor(ImPlotCol_Fill, color);
 
             if (ImPlot::BeginPlot("label", NULL, NULL, ImVec2(-1, 60),
                 ImPlotFlags_NoLegend | ImPlotFlags_NoTitle | ImPlotFlags_NoMenus, ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks, ImPlotAxisFlags_NoDecorations))
             {
-                ImPlot::PlotRects("label", label_getter, (void*)mLabelPairs.data(), mLabelPairs.size() * 2);
+                // TODO:
+                //ImPlot::PlotRects("label", label_getter, (void*)mLabelPairs.data(), mLabelPairs.size() * 2);
                 for (const auto& pair : mLabelPairs)
                 {
                     float start = (pair.start - firstFrameTimestamp) * 1e-3;
@@ -440,9 +439,9 @@ void PerfDoctorApp::drawPerfPanel()
         }
 
         //ImPlot::SetNextPlotTicksX(global_min_t, global_max_t, PANEL_TICK_T);
-        ImPlot::SetNextPlotLimitsX(global_min_t, global_max_t, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_X1, global_min_t, global_max_t, ImGuiCond_Always);
         //ImPlot::SetNextPlotTicksY(series.min_x, series.max_x, PANEL_TICK_X);
-        ImPlot::SetNextPlotLimitsY(series.min_x, series.max_x, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_Y1, series.min_x, series.max_x, ImGuiCond_Always);
 
         string title = series_name;
         char text[256];
@@ -471,7 +470,7 @@ void PerfDoctorApp::drawPerfPanel()
         if (ImPlot::BeginPlot(title.c_str(), NULL, NULL, ImVec2(-1, PANEL_HEIGHT),
             ImPlotFlags_NoChild | ImPlotFlags_NoMenus, ImPlotAxisFlags_NoDecorations))
         {
-            ImPlot::SetLegendLocation(ImPlotLocation_North | ImPlotLocation_West);
+            ImPlot::SetupLegend(ImPlotLocation_North | ImPlotLocation_West);
 
             //ImPlot::PushStyleColor(ImPlotCol_Line, items[i].Col);
             if (series_name == "frame_time")
@@ -536,7 +535,7 @@ void PerfDoctorApp::drawLabel()
     if (ImPlot::BeginPlot("label"))
     {
         bool clamp = false;
-
+#if 0
         ImVec4 col = ImVec4(1, 0.5f, 0, 0.25f);
         clamp ? ImPlot::AnnotateClamped(0.25, 0.25, ImVec2(-15, 15), col, "BL") : ImPlot::Annotate(0.25, 0.25, ImVec2(-15, 15), col, "BL");
         clamp ? ImPlot::AnnotateClamped(0.75, 0.25, ImVec2(15, 15), col, "BR") : ImPlot::Annotate(0.75, 0.25, ImVec2(15, 15), col, "BR");
@@ -544,7 +543,6 @@ void PerfDoctorApp::drawLabel()
         clamp ? ImPlot::AnnotateClamped(0.25, 0.75, ImVec2(-15, -15), col, "TL") : ImPlot::Annotate(0.25, 0.75, ImVec2(-15, -15), col, "TL");
         clamp ? ImPlot::AnnotateClamped(0.5, 0.5, ImVec2(0, 0), col, "Center") : ImPlot::Annotate(0.5, 0.5, ImVec2(0, 0), col, "Center");
 
-#if 0
         float bx[] = { 1.2f,1.5f,1.8f };
         float by[] = { 0.25f, 0.5f, 0.75f };
         ImPlot::PlotBars("##Bars", bx, by, 3, 0.2);

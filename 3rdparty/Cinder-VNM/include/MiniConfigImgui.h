@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MiniConfig.h"
-#include <Cinder/CinderImGui.h>
+#include "CinderImGui.h"
 #include <cinder/Utilities.h>
 #include <cinder/app/App.h>
 
@@ -96,14 +96,14 @@ namespace vnm
     {
         ImGuiInputTextFlags flags = 0;
         if (label[0] == '_') flags = ImGuiInputTextFlags_ReadOnly;
-        return ImGui::InputFloat4(label, &v.x, -1, flags);
+        return ImGui::InputFloat4(label, &v.x, NULL, flags);
     }
 
     bool addImguiParam(const char* label, vec2& v)
     {
         ImGuiInputTextFlags flags = 0;
         if (label[0] == '_') flags = ImGuiInputTextFlags_ReadOnly;
-        return ImGui::InputFloat2(label, &v.x, -1, flags);
+        return ImGui::InputFloat2(label, &v.x, NULL, flags);
     }
 
     bool addImguiParam(const char* label, ivec2& v)
@@ -117,14 +117,14 @@ namespace vnm
     {
         ImGuiInputTextFlags flags = 0;
         if (label[0] == '_') flags = ImGuiInputTextFlags_ReadOnly;
-        return ImGui::InputFloat3(label, &v.x, -1, flags);
+        return ImGui::InputFloat3(label, &v.x, NULL, flags);
     }
 
     bool addImguiParam(const char* label, vec4& v)
     {
         ImGuiInputTextFlags flags = 0;
         if (label[0] == '_') flags = ImGuiInputTextFlags_ReadOnly;
-        return ImGui::InputFloat4(label, &v.x, -1, flags);
+        return ImGui::InputFloat4(label, &v.x, NULL, flags);
     }
 
     bool addImguiParam(const char* label, Color& v)
@@ -207,7 +207,7 @@ void createConfigImgui(WindowRef window = getWindow(), bool autoDraw = true, boo
         .window(window)
         .autoRender(autoRender)
         .iniPath(App::get()->getAppPath() / "imgui.ini");
-    ImGui::Initialize(option);
+    ImGui::initialize(option);
     if (autoDraw)
         App::get()->getSignalUpdate().connect([] {vnm::drawMinicofigImgui(true); });
 }

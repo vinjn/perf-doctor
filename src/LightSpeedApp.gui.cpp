@@ -204,8 +204,8 @@ void PerfDoctorApp::drawDeviceTab()
             APP_NAME = mAppNames[mAppId];
         }
 
-        ImGui::Indent();
-        if (ImGui::Button("Pick Topmost App"))
+        ImGui::SameLine();
+        if (ImGui::Button("Topmost"))
         {
             // adb shell "dumpsys activity activities | grep mResumedActivity"
             auto lines = executeAdb("shell \"dumpsys activity activities | grep mResumedActivity\"");
@@ -231,12 +231,9 @@ void PerfDoctorApp::drawDeviceTab()
                 }
             }
         }
-        ImGui::Unindent();
 
         if (mAppId != -1)
         {
-            ImGui::Indent();
-
             if (ImGui::Button("Start App"))
             {
                 startApp(mAppNames[mAppId]);
@@ -246,28 +243,7 @@ void PerfDoctorApp::drawDeviceTab()
             {
                 stopApp(mAppNames[mAppId]);
             }
-
-            {
-                if (ImGui::Button("Trim Memory")) trimMemory("RUNNING_MODERATE");
-                ImGui::SameLine();
-                if (ImGui::Button("Low")) trimMemory("RUNNING_LOW");
-                ImGui::SameLine();
-                if (ImGui::Button("Critical")) trimMemory("RUNNING_CRITICAL");
-            }
             
-            ImGui::Unindent();
-
-            if (ImGui::Button("Screenshot"))
-            {
-                screenshot();
-            }
-            ImGui::SameLine();
-
-            if (ImGui::Button("Capture Perfetto"))
-            {
-                capturePerfetto();
-            }
-
             if (mIsProfiling)
             {
                 if (ImGui::Button("Stop Profiling"))
@@ -311,6 +287,17 @@ void PerfDoctorApp::drawDeviceTab()
             }
         }
 
+        if (ImGui::Button("Screenshot"))
+        {
+            screenshot();
+        }
+        ImGui::SameLine();
+
+        if (ImGui::Button("Perfetto"))
+        {
+            capturePerfetto();
+        }
+
         if (ImGui::CollapsingHeader("Config", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Indent();
@@ -348,6 +335,14 @@ void PerfDoctorApp::drawDeviceTab()
                 ImGui::Checkbox(kv.first.c_str(), &kv.second.visible);
             }
         }
+
+        if (ImGui::CollapsingHeader("Low Memory", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (ImGui::Button("Running Moderate")) trimMemory("RUNNING_MODERATE");
+            if (ImGui::Button("Running Low")) trimMemory("RUNNING_LOW");
+            if (ImGui::Button("Running Critical")) trimMemory("RUNNING_CRITICAL");
+        }
+
     }
 }
 

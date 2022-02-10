@@ -731,6 +731,14 @@ bool PerfDoctorApp::startProfiler_ios(const string& pacakgeName)
 
 bool PerfDoctorApp::capturePerfetto()
 {
+    if (!fs::exists(getAppPath() / "p.cfg"))
+    {
+        // create a placeholder one if missing
+        ofstream ofs(getAppPath() / "p.cfg");
+        if (ofs.is_open())
+            ofs << perfettoCmdTemplate;
+    }
+
     auto ts = getTimestampForFilename();
     string name = mPackageName + "-" + ts;
     mAsyncCommands.pushFront((getAppPath() / "capture-perfetto.bat").string() + " " + name);

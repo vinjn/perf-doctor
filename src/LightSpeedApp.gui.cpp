@@ -139,6 +139,21 @@ void PerfDoctorApp::drawLeftSidePanel()
                 launchWebBrowser(Url(APP_FOLDER + ".log", true));
             }
 
+            if (ImGui::CollapsingHeader("UE4CommandLine", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::Button("Reset"))
+                {
+                    sprintf(str, "shell rm /sdcard/UE4Game/%s/UE4CommandLine.txt", APP_FOLDER.c_str());
+                    executeAdb(str);
+                }
+                if (ImGui::Button("Enable Insights"))
+                {
+                    sprintf(str, "push %s/UE4CommandLine.txt /sdcard/UE4Game/%s/", getAppPath().string().c_str(), APP_FOLDER.c_str());
+                    executeAdb(str);
+                    executeAdb("reverse tcp:1980 tcp:1980");
+                }
+            }
+
             ImGui::InputText(" ", &UE_CMD);
             ImGui::SameLine();
             if (ImGui::Button("Apply"))

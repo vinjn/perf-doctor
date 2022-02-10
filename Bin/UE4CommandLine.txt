@@ -1,0 +1,1 @@
+-tracehost=127.0.0.1 -trace=gpu,cpu,frame,log,bookmark,loadtime,file,stats,counters -statnamedevents

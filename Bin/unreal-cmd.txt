@@ -12,6 +12,7 @@ stat Anim|stat Slate|stat Particles
 stat slow -ms=1 -maxdepth=6
 stat dumpframe -ms=0.1
 
+log LogGarbage log
 ProfileGPU|memreport|memreport -full
 stat SceneRendering|stat InitViews
 stat SceneUpdate|stat ShadowRendering

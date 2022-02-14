@@ -716,6 +716,22 @@ bool PerfDoctorApp::refreshDeviceDetails()
     //if (!lines.empty())
     //    mDeviceStat.hardware = lines[0];
 
+    lines = executeAdb("shell \"dumpsys SurfaceFlinger | grep cur:\"");
+    if (!lines.empty())
+    {
+        auto tokens = split(lines[0], ": ");
+        mDeviceStat.fps_min = fromString<int>(tokens[2]);
+        mDeviceStat.fps_max = fromString<int>(tokens[4]);
+        mDeviceStat.fps_now = fromString<int>(tokens[6]);
+    }
+
+    lines = executeAdb("shell \"dumpsys SurfaceFlinger | grep WxH\"");
+    if (!lines.empty())
+    {
+        auto tokens = split(lines[0], ": ");
+        mDeviceStat.display_WxH = tokens[2];
+    }
+
     return true;
 }
 

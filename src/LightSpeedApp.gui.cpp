@@ -326,6 +326,10 @@ void PerfDoctorApp::drawDeviceTab()
                 ImGui::Text("%d x %d", mDeviceStat.width, mDeviceStat.height);
             if (!mDeviceStat.gfx_api_version.empty())
                 ImGui::Text(mDeviceStat.gfx_api_version.c_str());
+            if (!mDeviceStat.display_WxH.empty())
+                ImGui::Text("Display WxH: %s", mDeviceStat.display_WxH.c_str());
+            if (mDeviceStat.fps_max != 0)
+                ImGui::Text("FPS max:%d now:%d", mDeviceStat.fps_max, mDeviceStat.fps_now);
             for (const auto& config : mCpuConfigs)
             {
                 if (config.cpuinfo_min_freq > 0)

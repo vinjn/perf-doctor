@@ -80,6 +80,8 @@ struct CpuConfig
 struct DeviceStat
 {
     int width = 0, height = 0;
+    int fps_min = 0, fps_max = 0, fps_now = 0;
+    string display_WxH;
     string os_version;
     string gfx_api_version;
     string market_name; // iOS only

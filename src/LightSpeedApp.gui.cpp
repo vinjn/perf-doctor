@@ -493,8 +493,11 @@ void PerfDoctorApp::drawPerfPanel()
             }
             else if (series_name == "cpu_usage")
             {
-                ImPlot::PlotLineG("sys", cpuUsage_getter, (void*)&mCpuStats, mCpuStats.size() - 1);
-                ImPlot::PlotLineG("app", app_cpuUsage_getter, (void*)&mAppCpuStats, mAppCpuStats.size() - 1);
+                if (!mCpuStats.empty())
+                {
+                    ImPlot::PlotLineG("sys", cpuUsage_getter, (void*)&mCpuStats, mCpuStats.size() - 1);
+                    ImPlot::PlotLineG("app", app_cpuUsage_getter, (void*)&mAppCpuStats, mAppCpuStats.size() - 1);
+                }
             }
             else if (series_name == "core_usage")
             {

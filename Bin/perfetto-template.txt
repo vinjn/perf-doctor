@@ -17,6 +17,11 @@ data_sources: {
 }
 data_sources: {
     config {
+        name: "android.surfaceflinger.frametimeline"
+    }
+}
+data_sources: {
+    config {
         name: "linux.ftrace"
         ftrace_config {
             ftrace_events: "gfx"

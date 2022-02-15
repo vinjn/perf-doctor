@@ -231,6 +231,7 @@ void PerfDoctorApp::drawDeviceTab()
                 if (APP_NAME != topAppName)
                 {
                     APP_NAME = topAppName;
+                    mPackageName = APP_NAME;
                     stopProfiler();
                 }
 

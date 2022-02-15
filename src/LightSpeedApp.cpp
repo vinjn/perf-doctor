@@ -1619,13 +1619,16 @@ void PerfDoctorApp::setup()
                 sprintf(cmd, "shell dumpsys SurfaceFlinger --latency \\\"%s\\\"", mSurfaceViewName.c_str());
                 results.SurfaceFlinger_latency = executeAdb(cmd);
             }
-            else if (SUPPORT_NON_GAME)
+            else if (SUPPORT_NON_GAME && storage.metric_storage["fps"].visible)
             {
                 sprintf(cmd, "shell dumpsys gfxinfo %s framestats", mPackageName.c_str());
                 results.dumpsys_gfxinfo = executeAdb(cmd);
             }
             results.EPOCHREALTIME = executeAdb("shell echo $EPOCHREALTIME");
-            results.proc_stat = executeAdb("shell cat /proc/stat");
+            if (storage.metric_storage["cpu_usage"].visible || storage.metric_storage["core_usage"].visible)
+            {
+                results.proc_stat = executeAdb("shell cat /proc/stat");
+            }
 
             if (storage.metric_storage["memory_usage"].visible)
             {
@@ -1638,11 +1641,14 @@ void PerfDoctorApp::setup()
                 results.scaling_cur_freq = executeAdb("shell cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq");
             }
 
-            sprintf(cmd, "shell cat /proc/%d/stat", pid);
-            results.proc_pid_stat = executeAdb(cmd);
-            if (!results.proc_pid_stat.empty() && results.proc_pid_stat[0].find("error") != string::npos)
+            if (storage.metric_storage["cpu_usage"].visible)
             {
-                results.success = false;
+                sprintf(cmd, "shell cat /proc/%d/stat", pid);
+                results.proc_pid_stat = executeAdb(cmd);
+                if (!results.proc_pid_stat.empty() && results.proc_pid_stat[0].find("error") != string::npos)
+                {
+                    results.success = false;
+                }
             }
 
             {

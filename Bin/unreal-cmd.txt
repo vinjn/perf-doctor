@@ -23,8 +23,11 @@ r.rhithread.enable 0|r.rhithread.enable 1|r.rhithread.enable 2
 r.ScreenPercentage 50|r.ScreenPercentage 100|r.ScreenPercentage 150
 r.StaticMeshLODBias 0|r.StaticMeshLODBias 1|r.StaticMeshLODBias 2
 r.SkeletalMeshLODBias 0|r.SkeletalMeshLODBias 1|r.SkeletalMeshLODBias 2
+//r.DefaultFeature.AntiAliasing 0
+//r.DefaultFeature.AntiAliasing 1|r.DefaultFeature.AntiAliasing 2
+//r.DefaultFeature.AntiAliasing 3
+r.MobileMSAA 0
 r.MobileMSAA 1|r.MobileMSAA 2|r.MobileMSAA 4
-r.DefaultFeature.AntiAliasing 1|r.DefaultFeature.AntiAliasing 2
 r.Mobile.SceneColorFormat 1|r.Mobile.SceneColorFormat 2
 r.AllowOcclusionQueries 0|r.AllowOcclusionQueries 1
 r.VisualizeOccludedPrimitives 0|r.VisualizeOccludedPrimitives 1

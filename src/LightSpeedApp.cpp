@@ -756,7 +756,7 @@ bool PerfDoctorApp::capturePerfetto()
     }
 
     auto ts = getTimestampForFilename();
-    string name = mPackageName + "-" + ts;
+    string name = APP_NAME + "-" + ts;
     mAsyncCommands.pushFront((getAppPath() / "capture-perfetto.bat").string() + " " + name);
     mAsyncCommands.pushFront((getAppPath() / "screenshot.bat").string() + " " + name + " hide_screenshot");
     return true;
@@ -765,7 +765,7 @@ bool PerfDoctorApp::capturePerfetto()
 bool PerfDoctorApp::screenshot()
 {
     auto ts = getTimestampForFilename();
-    string name = mPackageName + "-" + ts;
+    string name = APP_NAME + "-" + ts;
     mAsyncCommands.pushFront((getAppPath() / "screenshot.bat").string() + " " + name);
     return true;
 }

@@ -342,7 +342,7 @@ struct PerfDoctorApp : public App
     void drawPerfPanel();
     void drawLabel();
 
-    void getUnrealLog();
+    void getUnrealLog(bool openLogFile = false);
     void getMemReport();
     void getDumpTicks();
 

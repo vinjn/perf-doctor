@@ -1383,11 +1383,16 @@ void PerfDoctorApp::updateMetricsData()
     }
 }
 
-void PerfDoctorApp::getUnrealLog()
+void PerfDoctorApp::getUnrealLog(bool openLogFile)
 {
     char str[256];
     sprintf(str, "pull /sdcard/UE4Game/%s/%s/Saved/Logs/%s.log", APP_FOLDER.c_str(), APP_FOLDER.c_str(), APP_FOLDER.c_str());
     executeAdb(str);
+
+    if (openLogFile)
+    {
+        launchWebBrowser(Url(APP_FOLDER + ".log", true));
+    }
 }
 
 void PerfDoctorApp::getMemReport()
@@ -1696,12 +1701,10 @@ void PerfDoctorApp::setup()
     });
 
     getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
-        if (event.getCode() == KeyEvent::KEY_SPACE) screenshot();
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_l) getUnrealLog(true);
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_s) screenshot();
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_p) capturePerfetto();
-        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_d)
-        {
-            executeUnrealCmd("dumpticks");
-        }
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_d) executeUnrealCmd("dumpticks");
     });
 
     getWindow()->getSignalClose().connect([&] {

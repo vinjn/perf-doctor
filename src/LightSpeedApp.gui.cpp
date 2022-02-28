@@ -135,8 +135,7 @@ void PerfDoctorApp::drawLeftSidePanel()
             ImGui::SameLine();
             if (ImGui::Button("Get log"))
             {
-                getUnrealLog();
-                launchWebBrowser(Url(APP_FOLDER + ".log", true));
+                getUnrealLog(true);
             }
 
             if (ImGui::CollapsingHeader("UE4CommandLine", ImGuiTreeNodeFlags_DefaultOpen))

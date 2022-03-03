@@ -22,6 +22,19 @@ data_sources: {
 }
 data_sources: {
     config {
+        name: "android.log"
+        android_log_config {
+            log_ids: LID_DEFAULT
+            log_ids: LID_RADIO
+            log_ids: LID_EVENTS
+            log_ids: LID_SYSTEM
+            log_ids: LID_CRASH
+            log_ids: LID_KERNEL
+        }
+    }
+}
+data_sources: {
+    config {
         name: "linux.ftrace"
         ftrace_config {
             ftrace_events: "gfx"

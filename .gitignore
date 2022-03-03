@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+*.perfetto
+*.spec
 
 *.vs
 x64/
@@ -39,3 +41,5 @@ Bin/
 /vc2019/*.aps
 
 src/MixDevice.h
+
+perf-doctor-*

@@ -64,13 +64,6 @@ data_sources: {
 }
 data_sources: {
   config {
-    name: "gpu.counters"
-    target_buffer: 0
-    legacy_config: "counter_period_ns: 1000000\ncounter_ids:3\ncounter_ids:4\ncounter_ids:260\ncounter_ids:261\ncounter_ids:262\ncounter_ids:7\ncounter_ids:263\ncounter_ids:264\ncounter_ids:265\ncounter_ids:266\ncounter_ids:267\ncounter_ids:268\ncounter_ids:269\ncounter_ids:270\ncounter_ids:15\ncounter_ids:271\ncounter_ids:276\ncounter_ids:277\ncounter_ids:278\ncounter_ids:30\ncounter_ids:32\ncounter_ids:291\ncounter_ids:292\ncounter_ids:37\ncounter_ids:293\ncounter_ids:294\ncounter_ids:297\ncounter_ids:298\ncounter_ids:299\ncounter_ids:300\ncounter_ids:301\ncounter_ids:302\ncounter_ids:308\ncounter_ids:309\ncounter_ids:311\ncounter_ids:312\ncounter_ids:313\ncounter_ids:314\ncounter_ids:315\ncounter_ids:86\ncounter_ids:87\ncounter_ids:88\ncounter_ids:93\ncounter_ids:94\ncounter_ids:95\ncounter_ids:351\ncounter_ids:96\ncounter_ids:352\ncounter_ids:97\ncounter_ids:353\ncounter_ids:98\ncounter_ids:354\ncounter_ids:355\ncounter_ids:356\ncounter_ids:104\ncounter_ids:108\ncounter_ids:110\ncounter_ids:111\ncounter_ids:117\ncounter_ids:125\nset_id:0\n"
-  }
-}
-data_sources: {
-  config {
     name: "gpu.renderstages"
   }
 }
@@ -85,5 +78,67 @@ data_sources: {
     legacy_config: "VkDevice:VkPhysicalDevice:VkInstance:VkQueue"
   }
 }
-
+data_sources {
+  config {
+    name: "GlesGPUTiming"
+    legacy_config: "glApi:glDraw:glGroup:glRenderPass:glFrame"
+  }
+}
+data_sources {
+  config {
+    name: "gpu.counters"
+    target_buffer: 0
+    gpu_counter_config {
+      counter_period_ns: 1000000
+      counter_ids: 1
+      counter_ids: 130
+      counter_ids: 3
+      counter_ids: 131
+      counter_ids: 132
+      counter_ids: 133
+      counter_ids: 137
+      counter_ids: 138
+      counter_ids: 139
+      counter_ids: 140
+      counter_ids: 141
+      counter_ids: 142
+      counter_ids: 143
+      counter_ids: 145
+      counter_ids: 146
+      counter_ids: 147
+      counter_ids: 148
+      counter_ids: 21
+      counter_ids: 149
+      counter_ids: 150
+      counter_ids: 151
+      counter_ids: 153
+      counter_ids: 26
+      counter_ids: 154
+      counter_ids: 29
+      counter_ids: 30
+      counter_ids: 31
+      counter_ids: 37
+      counter_ids: 38
+      counter_ids: 39
+      counter_ids: 104
+      counter_ids: 106
+      counter_ids: 107
+      counter_ids: 108
+      counter_ids: 109
+      counter_ids: 110
+      counter_ids: 111
+      counter_ids: 113
+      counter_ids: 114
+      counter_ids: 115
+      counter_ids: 116
+      counter_ids: 117
+      counter_ids: 118
+      counter_ids: 121
+      counter_ids: 122
+      counter_ids: 123
+      counter_ids: 124
+      counter_ids: 126
+    }
+  }
+}
 duration_ms: 1000

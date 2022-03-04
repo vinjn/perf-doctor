@@ -7,6 +7,7 @@ set FILENAME=perf_%TIMESTAMP%
 IF not "%~1"=="" set FILENAME=%~1
 set CFG_NAME=/sdcard/p.cfg
 set TRACE_NAME=/data/misc/perfetto-traces/trace.perf
+@REM adb shell setprop debug.graphics.gpu.profiler.perfetto true
 @REM adb shell setprop vendor.debug.egl.profiler 1
 @REM adb shell setprop debug.egl.profiler 1
 @REM adb shell setprop debug.egl.profiler.perfetto 1
@@ -15,6 +16,7 @@ adb shell cat %CFG_NAME% | adb shell perfetto --txt -c - -o %TRACE_NAME%
 adb pull %TRACE_NAME% %FILENAME%.perfetto
 @REM adb exec-out screencap -p > %FILENAME%.png
 adb shell rm %TRACE_NAME%
+@REM adb shell setprop debug.graphics.gpu.profiler.perfetto false
 @REM adb shell setprop vendor.debug.egl.profiler 0
 @REM adb shell setprop debug.egl.profiler 0
 @REM adb shell setprop debug.egl.profiler.perfetto 0

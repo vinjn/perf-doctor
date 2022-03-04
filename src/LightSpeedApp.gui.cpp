@@ -302,16 +302,11 @@ void PerfDoctorApp::drawDeviceTab()
             }
         }
 
-        if (ImGui::Button("Screenshot"))
-        {
-            screenshot();
-        }
+        if (ImGui::Button("Screenshot"))    screenshot();
         ImGui::SameLine();
-
-        if (ImGui::Button("Perfetto"))
-        {
-            capturePerfetto();
-        }
+        if (ImGui::Button("Perfetto"))      capturePerfetto();
+        ImGui::SameLine();
+        if (ImGui::Button("SimplePerf"))    captureSimpleperf();
 
         if (ImGui::CollapsingHeader("Config", ImGuiTreeNodeFlags_DefaultOpen))
         {

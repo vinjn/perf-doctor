@@ -133,7 +133,7 @@ class ToolFinder:
         },
         'llvm-readelf': {
             'is_binutils': False,
-            'path_in_ndk':
+            'path_in_ndk': 
                 lambda platform: 'toolchains/llvm/prebuilt/%s-x86_64/bin/llvm-readelf' % platform,
         },
         'llvm-symbolizer': {

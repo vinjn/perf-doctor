@@ -302,6 +302,8 @@ struct PerfDoctorApp : public App
 
     bool capturePerfetto();
 
+    bool captureSimpleperf();
+
     bool screenshot();
 
     void exportGpuTrace();

@@ -762,6 +762,15 @@ bool PerfDoctorApp::capturePerfetto()
     return true;
 }
 
+bool PerfDoctorApp::captureSimpleperf()
+{
+    auto ts = getTimestampForFilename();
+
+    mAsyncCommands.pushFront((getAppPath() / ".." / "SimplePerf" / "run.bat").string() + " " + APP_NAME);
+    return true;
+}
+
+
 bool PerfDoctorApp::screenshot()
 {
     auto ts = getTimestampForFilename();
@@ -1704,6 +1713,7 @@ void PerfDoctorApp::setup()
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_l) getUnrealLog(true);
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_s) screenshot();
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_p) capturePerfetto();
+        if (event.isControlDown() && event.getCode() == KeyEvent::KEY_m) captureSimpleperf();
         if (event.isControlDown() && event.getCode() == KeyEvent::KEY_d) executeUnrealCmd("dumpticks");
     });
 

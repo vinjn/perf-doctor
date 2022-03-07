@@ -930,6 +930,7 @@ bool PerfDoctorApp::startProfiler(const string& pacakgeName)
 
     char cmd[256];
     mSurfaceViewName = "";
+    mSurfaceResolution = "";
     mPackageName = pacakgeName;
     pid = getPid(pacakgeName);
 
@@ -953,6 +954,22 @@ bool PerfDoctorApp::startProfiler(const string& pacakgeName)
 
         //break;
         // TODO: support multi-surface view
+    }
+
+    if (!mSurfaceViewName.empty())
+    {
+        sprintf(cmd, "shell \"dumpsys SurfaceFlinger | grep \'%s\'\"", mSurfaceViewName.c_str());
+        lines = executeAdb(cmd);
+        for (auto& line : lines)
+        {
+            auto lastLine = lines[lines.size() - 1];
+            // 0x7215e95c50: 4680.00 KiB |  720 ( 768) x 1560 |    1 |        2 | 0x10000900 | SurfaceView - com.xx.yy/com.epicgames.ue4.GameActivity#0
+            auto tokens = split(lastLine, '|');
+            if (tokens.size() == 6)
+            {
+                mSurfaceResolution = trim(tokens[1]);
+            }
+        }
     }
 
     mIsProfiling = true;

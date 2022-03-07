@@ -249,6 +249,7 @@ struct PerfDoctorApp : public App
     vector<bool> mIsIOSDevices;
     vector<string> mAppNames;
     string mSurfaceViewName = "";
+    string mSurfaceResolution = "";
     string mPackageName = "";
     bool mIsProfiling = false;
     float mLastUpdateTime = 0;

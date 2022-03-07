@@ -287,6 +287,9 @@ void PerfDoctorApp::drawDeviceTab()
                 {
                     exportCsv();
                 }
+                ImGui::SameLine();
+                if (!mSurfaceResolution.empty())
+                    ImGui::Text("WxH: %s", mSurfaceResolution.c_str());
             }
             else
             {
@@ -317,12 +320,14 @@ void PerfDoctorApp::drawDeviceTab()
                 ImGui::Text("%s", mDeviceStat.hardware.c_str());
             if (!mDeviceStat.gpu_name.empty())
                 ImGui::Text("%s", mDeviceStat.gpu_name.c_str());
+#if 0
             if (mDeviceStat.width > 0 && mDeviceStat.height > 0)
                 ImGui::Text("%d x %d", mDeviceStat.width, mDeviceStat.height);
+#endif
             if (!mDeviceStat.gfx_api_version.empty())
                 ImGui::Text(mDeviceStat.gfx_api_version.c_str());
             if (!mDeviceStat.display_WxH.empty())
-                ImGui::Text("Display WxH: %s", mDeviceStat.display_WxH.c_str());
+                ImGui::Text("Phone WxH: %s", mDeviceStat.display_WxH.c_str());
             if (mDeviceStat.fps_max != 0)
                 ImGui::Text("FPS max:%d now:%d", mDeviceStat.fps_max, mDeviceStat.fps_now);
             for (const auto& config : mCpuConfigs)

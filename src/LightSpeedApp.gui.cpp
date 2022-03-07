@@ -287,9 +287,11 @@ void PerfDoctorApp::drawDeviceTab()
                 {
                     exportCsv();
                 }
-                ImGui::SameLine();
                 if (!mSurfaceResolution.empty())
+                {
+                    ImGui::SameLine();
                     ImGui::Text("WxH: %s", mSurfaceResolution.c_str());
+                }
             }
             else
             {

@@ -962,9 +962,8 @@ bool PerfDoctorApp::startProfiler(const string& pacakgeName)
         lines = executeAdb(cmd);
         for (auto& line : lines)
         {
-            auto lastLine = lines[lines.size() - 1];
             // 0x7215e95c50: 4680.00 KiB |  720 ( 768) x 1560 |    1 |        2 | 0x10000900 | SurfaceView - com.xx.yy/com.epicgames.ue4.GameActivity#0
-            auto tokens = split(lastLine, '|');
+            auto tokens = split(line, '|');
             if (tokens.size() == 6)
             {
                 mSurfaceResolution = trim(tokens[1]);

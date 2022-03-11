@@ -21,6 +21,6 @@ adb shell rm %TRACE_NAME%
 @REM adb shell setprop debug.egl.profiler 0
 @REM adb shell setprop debug.egl.profiler.perfetto 0
 echo[
-echo [96mscreenshot file: %~dp0%FILENAME%.png[0m
+@REM echo [96mscreenshot file: %~dp0%FILENAME%.png[0m
 echo [96mperfetto file  : %~dp0%FILENAME%.perfetto[0m
 echo [96mperfetto viewer: https://ui.perfetto.dev/#!/[0m

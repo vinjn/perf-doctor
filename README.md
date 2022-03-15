@@ -21,31 +21,29 @@
 # 联系方式
 - vinjn@xd.com
 
+## adb commands for gpu profiling
 
-## adb 
+### adb shell settings list global | grep gpu
+```
+enable_gpu_debug_layers=1
+gpu_debug_app=com.xd.atelier
+gpu_debug_layer_app=com.google.android.gapid.arm64v8a:com.google.pixel.coral.gpuprofiling.vulkanlayer
+gpu_debug_layers=DebugMarker:CPUTiming:VkRenderStagesProducer
+```
 
-adb shell settings list global | grep gpu
+### Disable settings
+```
+adb shell settings delete global enable_gpu_debug_layers
+adb shell settings delete global gpu_debug_app
+adb shell settings delete global gpu_debug_layers_gles
+adb shell settings delete global gpu_debug_layers
+adb shell settings delete global gpu_debug_layer_app
+```
 
-    enable_gpu_debug_layers=1
-    gpu_debug_app=com.xd.atelier
-    gpu_debug_layer_app=com.google.android.gapid.arm64v8a:com.google.pixel.coral.gpuprofiling.vulkanlayer
-    gpu_debug_layers=DebugMarker:CPUTiming:VkRenderStagesProducer
+### adb shell getprop | grep profiler
+```
+[debug.graphics.gpu.profiler.perfetto]: [1]
+[graphics.gpu.profiler.support]: [true]
+[graphics.gpu.profiler.vulkan_layer_apk]: [com.google.pixel.coral.gpuprofiling.vulkanlayer]
+```
 
-Disable settings
-
-    adb shell settings delete global enable_gpu_debug_layers
-    adb shell settings delete global gpu_debug_app
-    adb shell settings delete global gpu_debug_layers_gles
-    adb shell settings delete global gpu_debug_layers
-    adb shell settings delete global gpu_debug_layer_app
-
-adb shell getprop | grep profiler
-
-    [debug.graphics.gpu.profiler.perfetto]: [1]
-    [graphics.gpu.profiler.support]: [true]
-    [graphics.gpu.profiler.vulkan_layer_apk]: [com.google.pixel.coral.gpuprofiling.vulkanlayer]
-
-
-## Huawei
-
-/data/local/tmp/config.txt

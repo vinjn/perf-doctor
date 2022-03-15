@@ -1,5 +1,5 @@
 # perf-doctor
-A mobile game profiling tool
+A mobile game profiler.
 
 [Download prebuit binary](https://github.com/taptap/perf-doctor/releases)
 

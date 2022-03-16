@@ -565,7 +565,7 @@ class Addr2Nearestline(object):
             return
 
         if not self._check_debug_line_section(real_path):
-            logging.debug("file %s doesn't contain .debug_line section." % real_path)
+            logging.warning("file %s doesn't contain .debug_line section." % real_path)
             return
 
         addr_step = self._get_addr_step(real_path)

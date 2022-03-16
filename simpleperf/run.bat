@@ -6,3 +6,4 @@ set PKG_NAME=com.sina.weibo
 IF not "%~1"=="" set PKG_NAME=%~1
 call python %~dp0\app_profiler.py -p %PKG_NAME% -r="-e task-clock:u -f 100000 -m 2048 -g --duration 1" --ndk_path %~dp0\ndk
 call python %~dp0\report_html.py --ndk_path %~dp0\ndk --report_path %~dp0\%PKG_NAME%_%DATE%_%TIMESTAMP%.html
+@REM call python %~dp0\report_html.py --ndk_path %~dp0\ndk --report_path %~dp0\%PKG_NAME%_%DATE%_%TIMESTAMP%.html --add_disassembly --binary_filter libUE4.so

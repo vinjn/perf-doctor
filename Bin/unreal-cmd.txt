@@ -19,6 +19,7 @@ stat SceneUpdate|stat ShadowRendering
 stat RenderThreadCommands|stat RHICMDLIST
 
 // Engine\Source\Runtime\Core\Private\HAL\ConsoleManager.cpp
+r.MaterialQualityLevel 0|r.MaterialQualityLevel 2|r.MaterialQualityLevel 1|r.MaterialQualityLevel 3
 r.rhithread.enable 0|r.rhithread.enable 1|r.rhithread.enable 2
 r.ScreenPercentage 50|r.ScreenPercentage 100|r.ScreenPercentage 150
 r.StaticMeshLODBias 0|r.StaticMeshLODBias 1|r.StaticMeshLODBias 2

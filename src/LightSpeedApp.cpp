@@ -1576,6 +1576,7 @@ void PerfDoctorApp::setup()
     mAutoStart = AUTO_START;
     ::SetCurrentDirectoryA(getAppPath().string().c_str());
 
+
     mMixDevice.setup();
 
     std::ifstream ifs_perfetto(getAppPath() / "perfetto-template.txt");
@@ -1608,10 +1609,9 @@ void PerfDoctorApp::setup()
     ImPlot::GetStyle().AntiAliasedLines = true;
     ImPlot::GetStyle().Marker = ImPlotMarker_Circle;
     ImPlot::GetStyle().MarkerSize = 2;
-
+    ImPlot::GetStyle().Colormap = COLOR_MAP;
 
     //ImPlot::SetNextMarkerStyle(ImPlotMarker_Square, 5, ImVec4(1, 0.5f, 0, 0.25f));
-
 
     mAdbThread = make_unique<thread>([this] {
         static auto lastTimestamp = getElapsedSeconds();
@@ -1720,6 +1720,8 @@ void PerfDoctorApp::setup()
             memory_usage_visible = storage.metric_storage["memory_usage"].visible;
             core_freq_visible = storage.metric_storage["core_freq"].visible;
             temperature_visible = storage.metric_storage["temperature"].visible;
+
+            COLOR_MAP = ImPlot::GetStyle().Colormap;
 
             quit();
         }

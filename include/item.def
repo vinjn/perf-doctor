@@ -14,6 +14,7 @@ ITEM_DEF(string, APP_FOLDER, "game")
 ITEM_DEF(string, UE_CMD, "stat unit")
 ITEM_DEF(bool, LIST_ALL_APP, false)
 ITEM_DEF(bool, SUPPORT_NON_GAME, false)
+ITEM_DEF(int, COLOR_MAP, 1)
 
 GROUP_DEF(visibility)
 ITEM_DEF(bool, fps_visible, true)

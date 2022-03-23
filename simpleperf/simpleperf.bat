@@ -1,0 +1,1 @@
+%~dp0\bin\windows\x86_64\simpleperf.exe %*

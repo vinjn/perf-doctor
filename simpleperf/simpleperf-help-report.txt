@@ -1,0 +1,74 @@
+
+d:\svn_pool\perf-doctor\simpleperf>d:\svn_pool\perf-doctor\simpleperf\\bin\windows\x86_64\simpleperf.exe help report 
+Usage: simpleperf report [options]
+The default options are: -i perf.data --sort comm,pid,tid,dso,symbol.
+-b    Use the branch-to addresses in sampled take branches instead of the
+      instruction addresses. Only valid for perf.data recorded with -b/-j
+      option.
+--children    Print the overhead accumulated by appearing in the callchain.
+              In the report, Children column shows overhead for a symbol and functions called
+              by the symbol, while Self column shows overhead for the symbol itself.
+--csv                     Report in csv format.
+--csv-separator <sep>     Set separator for csv columns. Default is ','.
+--full-callgraph  Print full call graph. Used with -g option. By default,
+                  brief call graph is printed.
+-g [callee|caller]    Print call graph. If callee mode is used, the graph
+                      shows how functions are called from others. Otherwise,
+                      the graph shows how functions call others.
+                      Default is caller mode.
+-i <file>  Specify path of record file, default is perf.data.
+--kallsyms <file>     Set the file to read kernel symbols.
+--max-stack <frames>  Set max stack frames shown when printing call graph.
+-n         Print the sample count for each item.
+--no-demangle         Don't demangle symbol names.
+--no-show-ip          Don't show vaddr in file for unknown symbols.
+-o report_file_name   Set report file name, default is stdout.
+--percent-limit <percent>  Set min percentage in report entries and call graphs.
+--print-event-count   Print event counts for each item. Additional events can be added by
+                      --add-counter in record cmd.
+--raw-period          Report period count instead of period percentage.
+--sort key1,key2,...  Select keys used to group samples into report entries. Samples having
+                      the same key values are aggregated into one report entry. Each report
+                      entry is printed in one row, having columns to show key values.
+                      Possible keys include:
+                        pid             -- process id
+                        tid             -- thread id
+                        comm            -- thread name (can be changed during
+                                           the lifetime of a thread)
+                        dso             -- shared library
+                        symbol          -- function name in the shared library
+                        vaddr_in_file   -- virtual address in the shared
+                                           library
+                      Keys can only be used with -b option:
+                        dso_from        -- shared library branched from
+                        dso_to          -- shared library branched to
+                        symbol_from     -- name of function branched from
+                        symbol_to       -- name of function branched to
+                      The default sort keys are:
+                        comm,pid,tid,dso,symbol
+--symfs <dir>         Look for files with symbols relative to this directory.
+--vmlinux <file>      Parse kernel symbols from <file>.
+
+Sample filter options:
+--comms comm1,comm2,...          Report only for threads with selected names.
+--cpu   cpu_item1,cpu_item2,...  Report samples on the selected cpus. cpu_item can be cpu
+                                 number like 1, or cpu range like 0-3.
+--dsos dso1,dso2,...             Report only for selected dsos.
+--pids pid1,pid2,...             Same as '--include-pid'.
+--symbols symbol1;symbol2;...    Report only for selected symbols.
+--tids tid1,tid2,...             Same as '--include-tid'.
+--exclude-pid pid1,pid2,...   Exclude samples for selected processes.
+--exclude-tid tid1,tid2,...   Exclude samples for selected threads.
+--exclude-process-name process_name_regex   Exclude samples for processes with name
+                                            containing the regular expression.
+--exclude-thread-name thread_name_regex     Exclude samples for threads with name containing
+                                            the regular expression.
+--include-pid pid1,pid2,...   Include samples for selected processes.
+--include-tid tid1,tid2,...   Include samples for selected threads.
+--include-process-name process_name_regex   Include samples for processes with name
+                                            containing the regular expression.
+--include-thread-name thread_name_regex     Include samples for threads with name containing
+                                            the regular expression.
+--filter-file <file>          Use filter file to filter samples based on timestamps. The
+                              file format is in doc/sampler_filter.md.
+

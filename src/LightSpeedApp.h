@@ -6,17 +6,6 @@
 #include "cinder/Log.h"
 #include "cinder/ConcurrentCircularBuffer.h"
 
-#ifdef MIX_DEVICE_ENABLED
-#include "MixDevice.h"
-#else
-struct MixDevice
-{
-    void setup()
-    {
-    }
-};
-#endif
-
 #include "AssetManager.h"
 #include "implot/implot.h"
 #include "implot/implot_internal.h"
@@ -234,8 +223,6 @@ struct PerfDoctorApp : public App
     unique_ptr<thread> mAdbThread;
     bool mIsRunning = true;
     bool mAutoStart = false;
-
-    MixDevice mMixDevice;
 
     FILE* fp_idb;
     vector<string> executeIdb(string cmd, bool async = false, bool oneDeviceOnly = true);

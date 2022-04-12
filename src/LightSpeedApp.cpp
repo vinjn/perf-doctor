@@ -1576,9 +1576,6 @@ void PerfDoctorApp::setup()
     mAutoStart = AUTO_START;
     ::SetCurrentDirectoryA(getAppPath().string().c_str());
 
-
-    mMixDevice.setup();
-
     std::ifstream ifs_perfetto(getAppPath() / "perfetto-template.txt");
     if (ifs_perfetto.is_open())
     {

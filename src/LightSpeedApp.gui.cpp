@@ -268,21 +268,6 @@ void PerfDoctorApp::drawDeviceTab()
 
                 ImGui::SameLine();
 
-#ifdef MIX_DEVICE_ENABLED
-                if (ImGui::Button("Start GpuTrace"))
-                {
-                    mMixDevice.startGpuTrace();
-                }
-
-                ImGui::SameLine();
-
-                if (ImGui::Button("Stop GpuTrace"))
-                {
-                    mMixDevice.stopGpuTrace();
-                    exportGpuTrace();
-                }
-#endif
-
                 if (ImGui::Button("Export"))
                 {
                     exportCsv();

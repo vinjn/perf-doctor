@@ -14,6 +14,7 @@ A mobile game profiler.
 # Build from scratch
 - clone https://github.com/taptap/perf-doctor
 - clone [Cinder framework](https://github.com/cinder/Cinder), `Cinder/` and `perf-doctor/` should be put in the same folder.
+- Open `Cinder/proj/vc2019/cinder.sln` with `Visual Studio 2019`, choose the same target (x64 Debug) as perf-doctor then build. The output is `cinder.lib`.
 - Open `vc2019/perf-doctor.sln` with `Visual Studio 2019`
 
 # Contact

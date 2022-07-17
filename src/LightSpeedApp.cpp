@@ -2,6 +2,7 @@
 #include "MiniConfig.h"
 #include "Cinder/Timeline.h"
 #include "cinder/Json.h"
+#include "cinder/Utilities.h"
 
 // TODO: so ugly
 float global_min_t = 0;
@@ -783,9 +784,9 @@ void PerfDoctorApp::exportGpuTrace()
 {
     auto ts = getTimestampForFilename();
     string name = mAppNames[mAppId] + ts + ".gpu.json";
-    JsonTree tree;
+    Json tree;
 
-    tree.write(getAppPath() / name);
+    writeJson(getAppPath() / name, tree);
 }
 
 bool PerfDoctorApp::exportCsv()

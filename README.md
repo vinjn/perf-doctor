@@ -18,7 +18,7 @@ A mobile game profiler.
 - Open `vc2019/perf-doctor.sln` with `Visual Studio 2019`
 
 # Contact
-- vinjn@xd.com
+- vinjn@qq.com
 
 ## adb commands for gpu profiling
 
